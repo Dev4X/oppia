@@ -349,7 +349,13 @@ class TestBase(unittest.TestCase):
             blurb='',
             author_notes='',
             default_skin='conversation_v1',
-            skin_customizations={'panels_contents': {}},
+            skin_customizations={
+                'panels_contents': {
+                    'bottom': [],
+                    'left': [],
+                    'right': []
+                }
+            },
             states_schema_version=0,
             init_state_name=feconf.DEFAULT_INIT_STATE_NAME,
             states=self.VERSION_0_STATES_DICT,

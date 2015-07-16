@@ -10,7 +10,10 @@ param_specs:
     obj_type: UnicodeString
 schema_version: 5
 skin_customizations:
-  panels_contents: {}
+  panels_contents:
+    left: []
+    right: []
+    bottom: []
 states:
   AbuDhabi:
     content:

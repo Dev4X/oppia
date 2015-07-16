@@ -10,7 +10,10 @@ param_specs:
     obj_type: UnicodeString
 schema_version: 7
 skin_customizations:
-  panels_contents: {}
+  panels_contents:
+    left: []
+    right: []
+    bottom: []
 states:
   END:
     content:

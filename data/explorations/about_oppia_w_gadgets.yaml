@@ -16,7 +16,6 @@ param_specs:
 schema_version: 7
 skin_customizations:
   panels_contents:
-    bottom: []
     left:
     - customization_args:
         adviceObjects:
@@ -30,9 +29,8 @@ skin_customizations:
             adviceTitle: What is this?
         orientation:
           value: vertical
-        title:
-          value: ''
-      gadget_id: AdviceBar
+      gadget_type: AdviceBar
+      gadget_name: FinlandAdviceBar
       visible_in_states:
       - Example2
     right:
@@ -47,9 +45,11 @@ skin_customizations:
           value: vertical
         title:
           value: ''
-      gadget_id: AdviceBar
+      gadget_type: AdviceBar
+      gadget_name: ExampleAdviceBar
       visible_in_states:
       - Example1
+    bottom: []
 states:
   About this website:
     content:

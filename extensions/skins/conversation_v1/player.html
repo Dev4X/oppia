@@ -4,6 +4,12 @@
 
   <div role="main" style="margin: 0 auto; max-width: 95%; position: relative;">
     <div class="conversation-skin-cards-container">
+
+      <div style="margin: 20px auto;">
+        <progress-dots num-dots="numProgressDots" current-dot-index="currentProgressDotIndex">
+        </progress-dots>
+      </div>
+
       <md-card class="conversation-skin-exploration-intro-card">
         <img ng-src="<[introCardImageUrl]>">
         <div class="conversation-skin-exploration-header">
@@ -104,5 +110,56 @@
         </div>
       </div>
     </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="components/progressDots">
+  <style>
+    @keyframes oppia-animate-enter-progress-dot {
+      0% {
+        margin-left: -15px;
+      }
+
+      10% {
+        margin-left: -13px;
+      }
+
+      70% {
+        margin-left: -2px;
+      }
+
+      100% {
+        margin-left: 0;
+      }
+    }
+
+    .oppia-progress-dot {
+      border-radius: 50%;
+      width: 10px;
+      height: 10px;
+      float: left;
+      margin-left: 5px;
+    }
+    .oppia-progress-dot-active {
+      background-color: blue;
+    }
+    .oppia-progress-dot-inactive {
+      background-color: #ccc;
+      cursor: pointer;
+    }
+
+    .oppia-animate-progress-dot.ng-enter {
+      -webkit-animation: 0.3s oppia-animate-enter-progress-dot;
+      animation: 0.3s oppia-animate-enter-progress-dot;
+    }
+  </style>
+
+  <div style="width: 300px; margin: 10px auto;">
+    <ul style="list-style-type: none; padding-left: 0; text-align: center; margin: 10px auto; position: relative;">
+      <li ng-repeat="dot in dots track by $index" style="display: inline-block;" class="oppia-animate-progress-dot">
+        <span class="oppia-progress-dot oppia-progress-dot-active" ng-if="$index === currentDotIndex"></span>
+        <span class="oppia-progress-dot oppia-progress-dot-inactive" ng-if="$index !== currentDotIndex" ng-click="changeActiveDot($index)"></span>
+      </li>
+    </ul>
   </div>
 </script>

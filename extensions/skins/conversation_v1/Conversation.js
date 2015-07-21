@@ -46,6 +46,18 @@ oppia.directive('conversationSkin', [function() {
       $rootScope.loadingMessage = 'Loading';
       $scope.isIframed = urlService.isIframed();
 
+      $scope.numProgressDots = 0;
+      $scope.currentProgressDotIndex = null;
+
+      var _addProgressDot = function() {
+        $scope.numProgressDots++;
+        $scope.currentProgressDotIndex = $scope.numProgressDots - 1;
+      };
+
+      $scope.$watch('currentProgressDotIndex', function(newValue) {
+        $scope.activeCard = $scope.allResponseStates[newValue];
+      });
+
       $scope.activeCard = null;
 
       // Returns true if the window is narrow, false otherwise.
@@ -95,6 +107,7 @@ oppia.directive('conversationSkin', [function() {
           content: contentHtml,
           answerFeedbackPairs: []
         });
+        _addProgressDot();
         $scope.activeCard = $scope.allResponseStates[
           $scope.allResponseStates.length - 1];
       };
@@ -253,6 +266,46 @@ oppia.directive('conversationSkin', [function() {
 
       $window.onresize = function() {
         $scope.adjustPageHeight(false, null);
+      };
+    }]
+  };
+}]);
+
+oppia.directive('progressDots', [function() {
+  return {
+    restrict: 'E',
+    scope: {
+      getNumDots: '&numDots',
+      currentDotIndex: '='
+    },
+    templateUrl: 'components/progressDots',
+    controller: ['$scope', function($scope) {
+
+      $scope.dots = [];
+      var initialDotCount = $scope.getNumDots();
+      for (var i = 0; i < initialDotCount; i++) {
+        $scope.dots.push({});
+      }
+
+      $scope.$watch(function() {
+        return $scope.getNumDots();
+      }, function(newValue) {
+        var oldValue = $scope.dots.length;
+
+        if (newValue === oldValue) {
+          return;
+        } else if (newValue === oldValue + 1) {
+          $scope.dots.push({});
+          $scope.currentDotIndex = $scope.dots.length - 1;
+        } else {
+          throw Error(
+            'Unexpected change to number of dots from ' + oldValue + ' to ' +
+            newValue);
+        }
+      });
+
+      $scope.changeActiveDot = function(index) {
+        $scope.currentDotIndex = index;
       };
     }]
   };

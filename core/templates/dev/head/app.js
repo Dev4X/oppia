@@ -36,10 +36,8 @@ var oppia = angular.module(
 // Set default headers for POST and PUT requests.
 // Add an interceptor to convert requests to strings and to log and show
 // warnings for error responses.
-// Disable ng-animate for carousel: see
-//     https://github.com/angular-ui/bootstrap/issues/1565
-oppia.config(['$interpolateProvider', '$httpProvider', '$animateProvider',
-    function($interpolateProvider, $httpProvider, $animateProvider) {
+oppia.config(['$interpolateProvider', '$httpProvider',
+    function($interpolateProvider, $httpProvider) {
   $interpolateProvider.startSymbol('<[');
   $interpolateProvider.endSymbol(']>');
 
@@ -72,8 +70,6 @@ oppia.config(['$interpolateProvider', '$httpProvider', '$animateProvider',
       };
     }
   ]);
-
-  $animateProvider.classNameFilter(/carousel/);
 }]);
 
 oppia.config(['$provide', function($provide) {

@@ -1,10 +1,26 @@
 <script type="text/ng-template" id="skins/Conversation">
+  <style>
+    body {
+      background: url('/images/general/background.png') no-repeat center center fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+    }
+  </style>
+
   <link rel="stylesheet" type="text/css"
         href="/extensions/skins/conversation_v1/static/conversation.css">
 
   <!-- TODO(sll): do we need to preserve the itemprop attr? -->
 
   <div role="main" style="margin: 0 auto; position: relative;">
+
+    <div style="margin: 12px auto;">
+      <progress-dots num-dots="numProgressDots" current-dot-index="currentProgressDotIndex">
+      </progress-dots>
+    </div>
+
     <md-card class="conversation-skin-card">
       <div class="conversation-skin-card-feedback-toggle-container" ng-if="activeCard.stateName && !isInPreviewMode">
         <span class="glyphicon glyphicon-comment conversation-skin-card-feedback-toggle" popover-placement="<[isWindowNarrow() ? 'left' : 'bottom']>" popover-template="popover/feedback" popover-trigger="click" tooltip="Feedback" tooltip-placement="bottom" state-name="<[activeCard.stateName]>">
@@ -27,7 +43,7 @@
         </div>
 
         <div class="conversation-skin-oppia-feedback-container">
-          <img class="conversation-skin-oppia-avatar img-circle" ng-src="/images/general/oppia_black_48px.png" style="top: 0;">
+          <img class="conversation-skin-oppia-avatar img-circle" ng-src="/images/general/oppia_black_48px.png">
           <div class="conversation-skin-oppia-feedback protractor-test-conversation-feedback" angular-html-bind="responsePair.oppiaFeedback">
           </div>
         </div>
@@ -41,10 +57,10 @@
         </div>
       </div>
 
-      <div ng-if="stateName && !waitingForNewCard && !waitingForOppiaFeedback && interactionIsInline">
+      <div ng-if="stateName && !waitingForNewCard && !waitingForOppiaFeedback && interactionIsInline && currentProgressDotIndex === allResponseStates.length - 1">
         <div class="conversation-skin-inline-interaction">
           <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
-          <div class="conversation-skin-user-input protractor-test-conversation-input" angular-html-bind="inputTemplate">
+          <div class="protractor-test-conversation-input" angular-html-bind="inputTemplate">
           </div>
         </div>
       </div>
@@ -76,5 +92,58 @@
       <rating-from-value rating-value="userRating" is-editable="true" on-edit="submitUserRating" style="letter-spacing: 10px;">
       </rating-from-value>
     </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="components/progressDots">
+  <style>
+    @keyframes oppia-animate-enter-progress-dot {
+      0% {
+        margin-left: -10px;
+      }
+
+      10% {
+        margin-left: -8px;
+      }
+
+      70% {
+        margin-left: -2px;
+      }
+
+      100% {
+        margin-left: 0;
+      }
+    }
+
+    .oppia-progress-dot {
+      border-radius: 50%;
+      float: left;
+      margin-left: 10px;
+    }
+    .oppia-progress-dot-active {
+      background-color: blue;
+      height: 12px;
+      width: 12px;
+    }
+    .oppia-progress-dot-inactive {
+      background-color: #fff;
+      cursor: pointer;
+      height: 10px;
+      width: 10px;
+    }
+
+    .oppia-animate-progress-dot.ng-enter {
+      -webkit-animation: 1.5s oppia-animate-enter-progress-dot;
+      animation: 1.5s oppia-animate-enter-progress-dot;
+    }
+  </style>
+
+  <div style="width: 300px; margin: 10px auto;">
+    <ul style="list-style-type: none; padding-left: 0; text-align: center; margin: 10px auto; position: relative;">
+      <li ng-repeat="dot in dots track by $index" style="display: inline-block;" class="oppia-animate-progress-dot">
+        <span class="oppia-progress-dot oppia-progress-dot-active" ng-if="$index === currentDotIndex"></span>
+        <span class="oppia-progress-dot oppia-progress-dot-inactive" ng-if="$index !== currentDotIndex" ng-click="changeActiveDot($index)"></span>
+      </li>
+    </ul>
   </div>
 </script>

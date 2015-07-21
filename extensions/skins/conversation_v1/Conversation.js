@@ -46,6 +46,8 @@ oppia.directive('conversationSkin', [function() {
       $rootScope.loadingMessage = 'Loading';
       $scope.isIframed = urlService.isIframed();
 
+      $scope.activeCard = null;
+
       // Returns true if the window is narrow, false otherwise.
       $scope.isWindowNarrow = function() {
         return $(window).width() < 700;
@@ -87,49 +89,14 @@ oppia.directive('conversationSkin', [function() {
         }
       });
 
-      var _scrollToBottom = function(postScrollCallback) {
-        $scope.adjustPageHeight(true, function() {
-          var oppiaLastContentHeight = $('.conversation-skin-oppia-output:last')
-            .offset().top;
-          var newScrollTop = null;
-          if ($(document).height() - oppiaLastContentHeight - 60 <=
-              $(window).height() * 0.5) {
-            // The -60 prevents the attribution guide from being scrolled into view.
-            newScrollTop = $(document).height() - $(window).height() - 60;
-            _learnerInputIsInView = true;
-          } else {
-            newScrollTop = oppiaLastContentHeight - $(window).height() * 0.5;
-            _learnerInputIsInView = false;
-          }
-
-          // Do not scroll up.
-          // This occurs if Oppia gives no feedback for (e.g.) a supplemental
-          // interaction. This leads to a scroll *up* to Oppia's last output,
-          // which is rather disconcerting.
-          if ($(document).scrollTop() >= newScrollTop) {
-            newScrollTop = $(document).scrollTop();
-          }
-
-          var page = $('html, body, iframe');
-
-          page.on("scroll mousedown wheel DOMMouseScroll mousewheel keyup touchmove", function() {
-            page.stop();
-          });
-
-          page.animate({
-            'scrollTop': newScrollTop
-          }, 1000, 'easeOutQuad', function() {
-            page.off("scroll mousedown wheel DOMMouseScroll mousewheel keyup touchmove");
-          }).promise().done(postScrollCallback);
-        });
-      };
-
       var _addNewCard = function(stateName, contentHtml) {
         $scope.allResponseStates.push({
           stateName: stateName,
           content: contentHtml,
           answerFeedbackPairs: []
         });
+        $scope.activeCard = $scope.allResponseStates[
+          $scope.allResponseStates.length - 1];
       };
 
       var MIN_CARD_LOADING_DELAY_MILLISECS = 1000;
@@ -183,11 +150,9 @@ oppia.directive('conversationSkin', [function() {
           $timeout(function() {
             _addNewCard($scope.stateName, initHtml);
             $scope.waitingForNewCard = false;
-            _scrollToBottom(function() {
-              if (_learnerInputIsInView) {
-                focusService.setFocus(_labelForNextFocusTarget);
-              }
-            });
+            if (_learnerInputIsInView) {
+              focusService.setFocus(_labelForNextFocusTarget);
+            }
           }, millisecsLeftToWait);
         });
 
@@ -257,37 +222,29 @@ oppia.directive('conversationSkin', [function() {
 
             if (oldStateName === newStateName) {
               $scope.waitingForOppiaFeedback = false;
-              _scrollToBottom(function() {
-                if (_learnerInputIsInView) {
-                  focusService.setFocus(_labelForNextFocusTarget);
-                }
-                _answerIsBeingProcessed = false;
-              });
+              if (_learnerInputIsInView) {
+                focusService.setFocus(_labelForNextFocusTarget);
+              }
+              _answerIsBeingProcessed = false;
             } else {
               if (feedbackHtml) {
                 $scope.waitingForOppiaFeedback = false;
                 $scope.waitingForNewCard = true;
-                _scrollToBottom(function() {
-                  $timeout(function() {
-                    $scope.waitingForNewCard = false;
-                    _addNewCard($scope.stateName, questionHtml);
-                    _scrollToBottom(function() {
-                      if (_learnerInputIsInView) {
-                        focusService.setFocus(_labelForNextFocusTarget);
-                      }
-                      _answerIsBeingProcessed = false;
-                    });
-                  }, 1000);
-                });
-              } else {
-                $scope.waitingForOppiaFeedback = false;
-                _addNewCard($scope.stateName, questionHtml);
-                _scrollToBottom(function() {
+                $timeout(function() {
+                  $scope.waitingForNewCard = false;
+                  _addNewCard($scope.stateName, questionHtml);
                   if (_learnerInputIsInView) {
                     focusService.setFocus(_labelForNextFocusTarget);
                   }
                   _answerIsBeingProcessed = false;
-                });
+                }, 1000);
+              } else {
+                $scope.waitingForOppiaFeedback = false;
+                _addNewCard($scope.stateName, questionHtml);
+                if (_learnerInputIsInView) {
+                  focusService.setFocus(_labelForNextFocusTarget);
+                }
+                _answerIsBeingProcessed = false;
               }
             }
           }, millisecsLeftToWait);

@@ -2,107 +2,79 @@
   <link rel="stylesheet" type="text/css"
         href="/extensions/skins/conversation_v1/static/conversation.css">
 
-  <div role="main" style="margin: 0 auto; max-width: 95%; position: relative;">
-    <div class="conversation-skin-cards-container">
-      <md-card class="conversation-skin-exploration-intro-card">
-        <img ng-src="<[introCardImageUrl]>">
-        <div class="conversation-skin-exploration-header">
-          <h3 itemprop="description" role="heading" class="protractor-test-exploration-header"><[explorationTitle]></h3>
+  <!-- TODO(sll): do we need to preserve the itemprop attr? -->
+
+  <div role="main" style="margin: 0 auto; position: relative;">
+    <md-card class="conversation-skin-card">
+      <div class="conversation-skin-card-feedback-toggle-container" ng-if="activeCard.stateName && !isInPreviewMode">
+        <span class="glyphicon glyphicon-comment conversation-skin-card-feedback-toggle" popover-placement="<[isWindowNarrow() ? 'left' : 'bottom']>" popover-template="popover/feedback" popover-trigger="click" tooltip="Feedback" tooltip-placement="bottom" state-name="<[activeCard.stateName]>">
+        </span>
+      </div>
+
+      <div class="conversation-skin-card-top">
+        <div>
+          <img class="conversation-skin-initial-oppia-avatar" src="/images/general/oppia_black_48px.png">
+          <div class="protractor-test-conversation-content" angular-html-bind="activeCard.content">
+          </div>
+        </div>
+      </div>
+
+      <div ng-repeat="responsePair in activeCard.answerFeedbackPairs track by $index">
+        <div class="conversation-skin-learner-answer-container">
+          <img class="conversation-skin-user-avatar" ng-src="<[profilePicture]>" style="top: -5px;">
+          <div class="conversation-skin-learner-answer" angular-html-bind="responsePair.learnerAnswer">
+          </div>
+        </div>
+
+        <div class="conversation-skin-oppia-feedback-container">
+          <img class="conversation-skin-oppia-avatar img-circle" ng-src="/images/general/oppia_black_48px.png" style="top: 0;">
+          <div class="conversation-skin-oppia-feedback protractor-test-conversation-feedback" angular-html-bind="responsePair.oppiaFeedback">
+          </div>
+        </div>
+
+        <div ng-if="$last" ng-show="waitingForOppiaFeedback">
+          <div class="conversation-skin-loading-dots">
+            <div class="oppia-loading-dot-one"></div>
+            <div class="oppia-loading-dot-two"></div>
+            <div class="oppia-loading-dot-three"></div>
+          </div>
+        </div>
+      </div>
+
+      <div ng-if="stateName && !waitingForNewCard && !waitingForOppiaFeedback && interactionIsInline">
+        <div class="conversation-skin-inline-interaction">
+          <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
+          <div class="conversation-skin-user-input protractor-test-conversation-input" angular-html-bind="inputTemplate">
+          </div>
+        </div>
+      </div>
+    </md-card>
+  </div>
+
+  <div ng-if="waitingForNewCard">
+    <div class="conversation-skin-loading-dots">
+      <div class="oppia-loading-dot-one"></div>
+      <div class="oppia-loading-dot-two"></div>
+      <div class="oppia-loading-dot-three"></div>
+    </div>
+  </div>
+
+  <div class="conversation-skin-supplemental-interaction">
+    <div ng-if="!waitingForNewCard && !interactionIsInline && inputTemplate && (!finished || !isIframed)">
+      <md-card class="conversation-skin-supplemental-card">
+        <div class="protractor-test-conversation-input" angular-html-bind="inputTemplate">
         </div>
       </md-card>
+    </div>
+  </div>
 
-      <div class="conversation-skin-iframe-container">
-        <oppia-gadget-panel panel-contents="gadgetPanelsContents.left" class="conversation-skin-left-gadget-panel"></oppia-gadget-panel>
-        <oppia-gadget-panel panel-contents="gadgetPanelsContents.right" class="conversation-skin-right-gadget-panel"></oppia-gadget-panel>
-        <div ng-repeat="state in allResponseStates track by $index"
-             ng-class="{'conversation-skin-last-log-entry': $last}">
-          <md-card class="conversation-skin-card">
-            <div class="conversation-skin-card-feedback-toggle-container" ng-if="state.stateName && !isInPreviewMode">
-              <span class="glyphicon glyphicon-comment conversation-skin-card-feedback-toggle" popover-placement="<[isWindowNarrow() ? 'left' : 'bottom']>" popover-template="popover/feedback" popover-trigger="click" tooltip="Feedback" tooltip-placement="bottom" state-name="<[state.stateName]>">
-              </span>
-            </div>
+  <div ng-if="!waitingForNewCard && finished && isLoggedIn && !isInPreviewMode && !isIframed" class="conversation-skin-final-ratings">
+    <oppia-gadget-panel panel-contents="gadgetPanelsContents.main" class="conversation-skin-main-gadget-panel"></oppia-gadget-panel>
 
-            <table class="conversation-skin-card-row-container">
-              <tr class="conversation-skin-card-row">
-                <td class="conversation-skin-row-avatar" valign="top">
-                  <img class="conversation-skin-row-avatar-img" src="/images/general/oppia_black_48px.png">
-                </td>
-                <td class="conversation-skin-oppia-output conversation-skin-oppia-content">
-                  <div class="protractor-test-conversation-content" angular-html-bind="state.content"></div>
-                </td>
-              </tr>
-            </table>
-
-            <div ng-repeat="responsePair in state.answerFeedbackPairs track by $index">
-              <table class="conversation-skin-card-row-container">
-                <tr ng-show="responsePair.learnerAnswer" class="conversation-skin-card-row">
-                  <td class="conversation-skin-row-avatar" valign="top">
-                    <img class="conversation-skin-row-avatar-img img-circle" ng-src="<[profilePicture]>">
-                  </td>
-                  <td class="conversation-skin-learner-answer" angular-html-bind="responsePair.learnerAnswer"></td>
-                </tr>
-              </table>
-              <table ng-show="responsePair.oppiaFeedback" class="conversation-skin-card-row-container">
-                <tr class="conversation-skin-card-row">
-                  <td class="conversation-skin-row-avatar" valign="top">
-                    <img class="conversation-skin-row-avatar-img" src="/images/general/oppia_black_48px.png">
-                  </td>
-                  <td class="conversation-skin-oppia-output conversation-skin-oppia-feedback protractor-test-conversation-feedback" angular-html-bind="responsePair.oppiaFeedback"></td>
-                </tr>
-              </table>
-            </div>
-
-            <div ng-if="$last" ng-show="waitingForOppiaFeedback">
-              <div class="conversation-skin-loading-dots">
-                <div class="oppia-loading-dot-one"></div>
-                <div class="oppia-loading-dot-two"></div>
-                <div class="oppia-loading-dot-three"></div>
-              </div>
-            </div>
-
-            <div ng-if="stateName && !waitingForNewCard && !waitingForOppiaFeedback && interactionIsInline && $last">
-              <div class="conversation-skin-inline-interaction">
-                <table class="conversation-skin-card-row-container" style="margin-bottom: 0;">
-                  <tr class="conversation-skin-card-row">
-                    <td class="conversation-skin-row-avatar" valign="top">
-                      <img class="conversation-skin-row-avatar-img img-circle" ng-src="<[profilePicture]>">
-                    </td>
-                    <td class="conversation-skin-learner-input protractor-test-conversation-input"
-                        angular-html-bind="inputTemplate">
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-          </md-card>
-        </div>
-      </div>
-
-      <div ng-if="waitingForNewCard">
-        <div class="conversation-skin-loading-dots">
-          <div class="oppia-loading-dot-one"></div>
-          <div class="oppia-loading-dot-two"></div>
-          <div class="oppia-loading-dot-three"></div>
-        </div>
-      </div>
-
-      <div class="conversation-skin-supplemental-interaction">
-        <div ng-if="!waitingForNewCard && !interactionIsInline && inputTemplate && (!finished || !isIframed)">
-          <md-card class="conversation-skin-supplemental-card">
-            <div class="protractor-test-conversation-input" angular-html-bind="inputTemplate">
-            </div>
-          </md-card>
-        </div>
-      </div>
-
-      <div ng-if="!waitingForNewCard && finished && isLoggedIn && !isInPreviewMode && !isIframed" class="conversation-skin-final-ratings">
-        <oppia-gadget-panel panel-contents="gadgetPanelsContents.bottom"></oppia-gadget-panel>
-        <div style="margin-bottom: 20px;">Learned something new? How would you rate this exploration?</div>
-        <div popover-placement="bottom" popover-template="popover/feedback" popover-trigger="click">
-          <rating-from-value rating-value="userRating" is-editable="true" on-edit="submitUserRating" style="letter-spacing: 10px;">
-          </rating-from-value>
-        </div>
-      </div>
+    <div style="margin-bottom: 20px;">Learned something new? How would you rate this exploration?</div>
+    <div popover-placement="bottom" popover-template="popover/feedback" popover-trigger="click">
+      <rating-from-value rating-value="userRating" is-editable="true" on-edit="submitUserRating" style="letter-spacing: 10px;">
+      </rating-from-value>
     </div>
   </div>
 </script>

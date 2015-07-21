@@ -27,35 +27,41 @@ html, body {
   All classes below should start with .conversation-skin
  */
 
-.conversation-skin-cards-container {
-  margin-bottom: 50px;
+.conversation-skin-initial-oppia-avatar,
+.conversation-skin-oppia-avatar,
+.conversation-skin-user-avatar {
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+}
+.conversation-skin-initial-oppia-avatar {
+  border: 2px solid #05a69a;
+  height: 48px;
+  left: -24px;
+  top: 30px;
+  width: 48px;
+}
+.conversation-skin-oppia-avatar {
+  border: 2px solid #05a69a;
+  height: 36px;
+  left: -18px;
+  top: 18px;
+  width: 36px;
+}
+.conversation-skin-user-avatar {
+  border: 1px solid blue;
+  height: 36px;
+  left: -18px;
+  top: 18px;
+  width: 36px;
 }
 
-.conversation-skin-exploration-intro-card {
-  background-color: rgb(255,255,255);
-  font-family: 'Roboto';
-  margin: 20px auto;
-  max-height: 567px;
-  max-width: 560px;
-  padding: 0px;
-  text-align: center;
+.conversation-skin-user-input {
+  margin: 0 35px;
 }
 
+.conversation-skin-main-gadget-panel {
 
-.conversation-skin-left-gadget-panel {
-  margin-right: 285px;
-  max-width: 200px;
-  position: fixed;
-  right: 50%;
-  top: 76px;
-}
-
-.conversation-skin-right-gadget-panel {
-  margin-left: 285px;
-  max-width: 200px;
-  position: fixed;
-  left: 50%;
-  top: 76px;
 }
 
 .conversation-skin-card-row-container {
@@ -80,31 +86,26 @@ html, body {
   max-width: 24px;
 }
 
-.conversation-skin-exploration-header {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 1));
-  font-size: 1.25em;
-  text-align: center;
-  height: 30%;
-  margin-top: -13.9%;
-  padding-bottom: 1%;
-  padding-top: 1%;
-  position: relative;
-}
-
-.conversation-skin-iframe-container {
-  -webkit-overflow-scrolling: touch;
-}
-
 /* 'md-card' is needed to ensure that this takes precedence over the default
    Material Design stylesheet. */
 md-card.conversation-skin-card {
   background: rgb(255,255,255);
-  margin: 20px auto;
-  margin-top: -5px;
+  margin: 50px auto;
   max-width: 560px;
-  padding: 40px 60px 27px 22px;
+  padding: 0;
   position: relative;
   text-align: left;
+}
+
+.conversation-skin-card-top {
+  padding: 40px 60px 25px 60px
+}
+.conversation-skin-learner-answer-container,
+.conversation-skin-oppia-feedback-container {
+  margin-bottom: 20px;
+  margin-top: 20px;
+  padding: 0 60px;
+  position: relative;
 }
 
 .conversation-skin-card-feedback-toggle-container {
@@ -122,14 +123,12 @@ md-card.conversation-skin-card {
   opacity: 0.8;
 }
 
-.conversation-skin-learner-input {
-  padding-left: 15px;
-}
-
 .conversation-skin-learner-answer {
-  color: #579287;
-  padding-left: 15px;
-  width: 100%;
+  color: blue;
+}
+.conversation-skin-learner-answer,
+.conversation-skin-oppia-feedback {
+  min-height: 30px;
   word-wrap: break-word;
 }
 
@@ -138,11 +137,8 @@ md-card.conversation-skin-card {
   padding-top: 2px;
 }
 
-.conversation-skin-oppia-feedback {
+.conversation-skin-learner-input {
   padding-left: 15px;
-  text-align: left;
-  width: 100%;
-  word-wrap: break-word;
 }
 
 .conversation-skin-loading-dots {
@@ -158,17 +154,10 @@ md-card.conversation-skin-card {
   width: 10px;
 }
 
-/* 'md-card' is needed to ensure that this takes precedence over the default
-   Material Design stylesheet. */
-md-card.conversation-skin-inline-interaction {
-  background-color: #f6f6f6;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  margin: -20px auto;
-  max-width: 560px;
+.conversation-skin-inline-interaction {
+  background: #eee;
+  padding: 20px;
+  position: relative;
 }
 
 .conversation-skin-supplemental-interaction {

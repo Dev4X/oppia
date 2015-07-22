@@ -102,14 +102,6 @@
         margin-left: -10px;
       }
 
-      10% {
-        margin-left: -8px;
-      }
-
-      70% {
-        margin-left: -2px;
-      }
-
       100% {
         margin-left: 0;
       }
@@ -133,8 +125,10 @@
     }
 
     .oppia-animate-progress-dot.ng-enter {
-      -webkit-animation: 1.5s oppia-animate-enter-progress-dot;
-      animation: 1.5s oppia-animate-enter-progress-dot;
+      -webkit-animation: 400ms oppia-animate-enter-progress-dot;
+      animation: 400ms oppia-animate-enter-progress-dot;
+      -webkit-animation-timing-function: linear;
+      animation-timing-function: linear;
     }
   </style>
 

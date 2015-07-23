@@ -66,6 +66,21 @@ body {
   width: 36px;
 }
 
+.conversation-skin-responses-dropdown-container {
+  border-bottom: 1px solid #888;
+  cursor: pointer;
+  line-height: 0.1em;
+  margin: 0 auto 20px auto;
+  text-align: center;
+  width: 90%;
+}
+.conversation-skin-responses-dropdown-text {
+  background-color: #fff;
+  color: #888;
+  font-size: 0.8em;
+  padding: 0 10px;
+}
+
 .conversation-skin-main-gadget-panel {
 
 }
@@ -103,15 +118,14 @@ md-card.conversation-skin-card {
   text-align: left;
 }
 
-.conversation-skin-card-top {
+.conversation-skin-card-top-section {
   padding: 40px 36px 10px 36px
 }
 .conversation-skin-learner-answer-container,
 .conversation-skin-oppia-feedback-container {
   margin-bottom: 20px;
-  margin-top: 20px;
   min-height: 42px;
-  padding: 0 36px;
+  padding: 0 36px 20px 36px;
   position: relative;
 }
 
@@ -144,17 +158,40 @@ md-card.conversation-skin-card {
   word-wrap: break-word;
 }
 
-.conversation-skin-loading-dots {
-  text-align: center;
-}
-.conversation-skin-loading-dots > .oppia-loading-dot-one,
-.conversation-skin-loading-dots > .oppia-loading-dot-two,
-.conversation-skin-loading-dots > .oppia-loading-dot-three {
-  background-color: black;
+.conversation-skin-feedback-dot-one,
+.conversation-skin-feedback-dot-two,
+.conversation-skin-feedback-dot-three {
+  background-color: #666;
   display: inline-block;
-  height: 10px;
-  margin: 10px;
-  width: 10px;
+  height: 2px;
+  width: 2px;
+}
+.conversation-skin-feedback-dot-one {
+  opacity: 0;
+  animation: dot 1.5s infinite;
+  animation-delay: 0.0s;
+  -moz-animation: dot 1.5s infinite;
+  -moz-animation-delay: 0.0s;
+  -webkit-animation: dot 1.5s infinite;
+  -webkit-animation-delay: 0.0s;
+}
+.conversation-skin-feedback-dot-two {
+  opacity: 0;
+  animation: dot 1.5s infinite;
+  animation-delay: 0.3s;
+  -moz-animation: dot 1.5s infinite;
+  -moz-animation-delay: 0.3s;
+  -webkit-animation: dot 1.5s infinite;
+  -webkit-animation-delay: 0.3s;
+}
+.conversation-skin-feedback-dot-three {
+  opacity: 0;
+  animation: dot 1.5s infinite;
+  animation-delay: 0.6s;
+  -moz-animation: dot 1.5s infinite;
+  -moz-animation-delay: 0.6s;
+  -webkit-animation: dot 1.5s infinite;
+  -webkit-animation-delay: 0.6s;
 }
 
 .conversation-skin-supplemental-interaction {

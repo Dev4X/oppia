@@ -15,7 +15,6 @@
   <!-- TODO(sll): do we need to preserve the itemprop attr? -->
 
   <div role="main" style="margin: 0 auto; position: relative;">
-
     <div style="margin: 12px auto;">
       <progress-dots num-dots="numProgressDots" current-dot-index="currentProgressDotIndex">
       </progress-dots>
@@ -23,11 +22,15 @@
 
     <md-card class="conversation-skin-card">
       <div class="conversation-skin-card-feedback-toggle-container" ng-if="activeCard.stateName && !isInPreviewMode">
-        <span class="glyphicon glyphicon-comment conversation-skin-card-feedback-toggle" popover-placement="<[isWindowNarrow() ? 'left' : 'bottom']>" popover-template="popover/feedback" popover-trigger="click" tooltip="Feedback" tooltip-placement="bottom" state-name="<[activeCard.stateName]>">
+        <span class="glyphicon glyphicon-comment conversation-skin-card-feedback-toggle"
+              popover-placement="<[isWindowNarrow() ? 'left' : 'bottom']>"
+              popover-template="popover/feedback" popover-trigger="click"
+              tooltip="Feedback" tooltip-placement="bottom"
+              state-name="<[activeCard.stateName]>">
         </span>
       </div>
 
-      <div class="conversation-skin-card-top">
+      <div class="conversation-skin-card-top-section">
         <div>
           <img class="conversation-skin-initial-oppia-avatar" src="/images/general/oppia_black_48px.png">
           <div class="protractor-test-conversation-content" angular-html-bind="activeCard.content">
@@ -35,26 +38,31 @@
         </div>
       </div>
 
-      <div ng-repeat="responsePair in activeCard.answerFeedbackPairs track by $index">
-        <div class="conversation-skin-learner-answer-container">
-          <img class="conversation-skin-user-avatar" ng-src="<[profilePicture]>" style="top: -5px;">
-          <div class="conversation-skin-learner-answer" angular-html-bind="responsePair.learnerAnswer">
+      <div ng-if="arePreviousResponsesShown">
+        <div ng-repeat="responsePair in activeCard.answerFeedbackPairs track by $index">
+          <div ng-if="!$last">
+            <answer-feedback-pair profile-picture="profilePicture"
+                                  answer="responsePair.learnerAnswer"
+                                  feedback="responsePair.oppiaFeedback">
+            </answer-feedback-pair>
           </div>
         </div>
+      </div>
+      <div ng-if="!arePreviousResponsesShown && activeCard.answerFeedbackPairs.length > 1">
+        <h4 class="conversation-skin-responses-dropdown-container" ng-click="showPreviousResponses()">
+          <span class="conversation-skin-responses-dropdown-text">
+            <[activeCard.answerFeedbackPairs.length - 1]> prior response<span ng-if="activeCard.answerFeedbackPairs.length > 2">s</span>
+            <span class="glyphicon glyphicon-play"></span>
+          </span>
+        </h4>
+      </div>
 
-        <div class="conversation-skin-oppia-feedback-container">
-          <img class="conversation-skin-oppia-avatar img-circle" ng-src="/images/general/oppia_black_48px.png">
-          <div class="conversation-skin-oppia-feedback protractor-test-conversation-feedback" angular-html-bind="responsePair.oppiaFeedback">
-          </div>
-        </div>
-
-        <div ng-if="$last" ng-show="waitingForOppiaFeedback">
-          <div class="conversation-skin-loading-dots">
-            <div class="oppia-loading-dot-one"></div>
-            <div class="oppia-loading-dot-two"></div>
-            <div class="oppia-loading-dot-three"></div>
-          </div>
-        </div>
+      <!-- Always show the most recent response pair, if there is one. -->
+      <div ng-if="activeCard.answerFeedbackPairs.length > 0">
+        <answer-feedback-pair profile-picture="profilePicture"
+                              answer="activeCard.answerFeedbackPairs[activeCard.answerFeedbackPairs.length - 1].learnerAnswer"
+                              feedback="activeCard.answerFeedbackPairs[activeCard.answerFeedbackPairs.length - 1].oppiaFeedback">
+        </answer-feedback-pair>
       </div>
 
       <div ng-if="stateName && !waitingForNewCard && !waitingForOppiaFeedback && interactionIsInline && currentProgressDotIndex === allResponseStates.length - 1">
@@ -65,14 +73,6 @@
         </div>
       </div>
     </md-card>
-  </div>
-
-  <div ng-if="waitingForNewCard">
-    <div class="conversation-skin-loading-dots">
-      <div class="oppia-loading-dot-one"></div>
-      <div class="oppia-loading-dot-two"></div>
-      <div class="oppia-loading-dot-three"></div>
-    </div>
   </div>
 
   <div class="conversation-skin-supplemental-interaction">
@@ -91,6 +91,27 @@
     <div popover-placement="bottom" popover-template="popover/feedback" popover-trigger="click">
       <rating-from-value rating-value="userRating" is-editable="true" on-edit="submitUserRating" style="letter-spacing: 10px;">
       </rating-from-value>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="components/answerFeedbackPair">
+  <div class="conversation-skin-learner-answer-container">
+    <img class="conversation-skin-user-avatar" ng-src="<[profilePicture()]>" style="top: -5px;">
+    <div class="conversation-skin-learner-answer" angular-html-bind="answer()">
+    </div>
+  </div>
+
+  <div class="conversation-skin-oppia-feedback-container">
+    <img class="conversation-skin-oppia-avatar img-circle" ng-src="/images/general/oppia_black_48px.png">
+
+    <div class="conversation-skin-oppia-feedback protractor-test-conversation-feedback">
+      <div ng-if="feedback() === null">
+        <div class="conversation-skin-feedback-dot-one"></div>
+        <div class="conversation-skin-feedback-dot-two"></div>
+        <div class="conversation-skin-feedback-dot-three"></div>
+      </div>
+      <div ng-if="feedback() !== null" angular-html-bind="feedback()"></div>
     </div>
   </div>
 </script>
@@ -124,6 +145,17 @@
       width: 10px;
     }
 
+    .oppia-progress-dot-list {
+      list-style-type: none;
+      margin: 10px auto;
+      padding-left: 0;
+      position: relative;
+      text-align: center;
+    }
+
+    .oppia-animate-progress-dot {
+      display: inline-block;
+    }
     .oppia-animate-progress-dot.ng-enter {
       -webkit-animation: 400ms oppia-animate-enter-progress-dot;
       animation: 400ms oppia-animate-enter-progress-dot;
@@ -133,10 +165,15 @@
   </style>
 
   <div style="width: 300px; margin: 10px auto;">
-    <ul style="list-style-type: none; padding-left: 0; text-align: center; margin: 10px auto; position: relative;">
-      <li ng-repeat="dot in dots track by $index" style="display: inline-block;" class="oppia-animate-progress-dot">
-        <span class="oppia-progress-dot oppia-progress-dot-active" ng-if="$index === currentDotIndex"></span>
-        <span class="oppia-progress-dot oppia-progress-dot-inactive" ng-if="$index !== currentDotIndex" ng-click="changeActiveDot($index)"></span>
+    <ul class="oppia-progress-dot-list">
+      <li ng-repeat="dot in dots track by $index" class="oppia-animate-progress-dot">
+        <span class="oppia-progress-dot oppia-progress-dot-active"
+              ng-if="$index === currentDotIndex">
+        </span>
+        <span class="oppia-progress-dot oppia-progress-dot-inactive"
+              ng-if="$index !== currentDotIndex"
+              ng-click="changeActiveDot($index)">
+        </span>
       </li>
     </ul>
   </div>

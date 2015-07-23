@@ -38,7 +38,6 @@ oppia.directive('conversationSkin', [function() {
       var hasInteractedAtLeastOnce = false;
       var _labelForNextFocusTarget = null;
       var _answerIsBeingProcessed = false;
-      var _learnerInputIsInView = false;
 
       $scope.isInPreviewMode = oppiaPlayerService.isInPreviewMode();
       $scope.introCardImageUrl = null;
@@ -48,14 +47,30 @@ oppia.directive('conversationSkin', [function() {
 
       $scope.numProgressDots = 0;
       $scope.currentProgressDotIndex = null;
+      $scope.arePreviousResponsesShown = false;
+
+      $scope.showPreviousResponses = function() {
+        $scope.arePreviousResponsesShown = true;
+      };
 
       var _addProgressDot = function() {
         $scope.numProgressDots++;
         $scope.currentProgressDotIndex = $scope.numProgressDots - 1;
       };
 
+      var _navigateToCard = function(index) {
+        $scope.activeCard = $scope.allResponseStates[index];
+        $scope.arePreviousResponsesShown = false;
+      };
+
+      oppiaPlayerService.getUserProfileImage().then(function(result) {
+        // $scope.profilePicture contains a dataURI representation of the
+        // user-uploaded profile image, or the path to the default image.
+        $scope.profilePicture = result;
+      });
+
       $scope.$watch('currentProgressDotIndex', function(newValue) {
-        $scope.activeCard = $scope.allResponseStates[newValue];
+        _navigateToCard(newValue);
       });
 
       $scope.activeCard = null;
@@ -108,8 +123,7 @@ oppia.directive('conversationSkin', [function() {
           answerFeedbackPairs: []
         });
         _addProgressDot();
-        $scope.activeCard = $scope.allResponseStates[
-          $scope.allResponseStates.length - 1];
+        _navigateToCard($scope.allResponseStates.length - 1);
       };
 
       var MIN_CARD_LOADING_DELAY_MILLISECS = 1000;
@@ -129,11 +143,6 @@ oppia.directive('conversationSkin', [function() {
           $scope.explorationTitle = oppiaPlayerService.getExplorationTitle();
           $scope.isLoggedIn = oppiaPlayerService.isLoggedIn();
           $scope.introCardImageUrl = introCardImageUrl;
-          oppiaPlayerService.getUserProfileImage().then(function(result) {
-            // $scope.profilePicture contains a dataURI representation of the
-            // user-uploaded profile image, or the path to the default image.
-            $scope.profilePicture = result;
-          });
           hasInteractedAtLeastOnce = false;
           $scope.finished = false;
           $scope.hasEditingRights = hasEditingRights;
@@ -163,9 +172,7 @@ oppia.directive('conversationSkin', [function() {
           $timeout(function() {
             _addNewCard($scope.stateName, initHtml);
             $scope.waitingForNewCard = false;
-            if (_learnerInputIsInView) {
-              focusService.setFocus(_labelForNextFocusTarget);
-            }
+            focusService.setFocus(_labelForNextFocusTarget);
           }, millisecsLeftToWait);
         });
 
@@ -194,7 +201,7 @@ oppia.directive('conversationSkin', [function() {
 
         $scope.allResponseStates[$scope.allResponseStates.length - 1].answerFeedbackPairs.push({
           learnerAnswer: oppiaPlayerService.getAnswerAsHtml(answer),
-          oppiaFeedback: ''
+          oppiaFeedback: null
         });
 
         $scope.waitingForOppiaFeedback = true;
@@ -235,9 +242,7 @@ oppia.directive('conversationSkin', [function() {
 
             if (oldStateName === newStateName) {
               $scope.waitingForOppiaFeedback = false;
-              if (_learnerInputIsInView) {
-                focusService.setFocus(_labelForNextFocusTarget);
-              }
+              focusService.setFocus(_labelForNextFocusTarget);
               _answerIsBeingProcessed = false;
             } else {
               if (feedbackHtml) {
@@ -246,17 +251,13 @@ oppia.directive('conversationSkin', [function() {
                 $timeout(function() {
                   $scope.waitingForNewCard = false;
                   _addNewCard($scope.stateName, questionHtml);
-                  if (_learnerInputIsInView) {
-                    focusService.setFocus(_labelForNextFocusTarget);
-                  }
+                  focusService.setFocus(_labelForNextFocusTarget);
                   _answerIsBeingProcessed = false;
                 }, 1000);
               } else {
                 $scope.waitingForOppiaFeedback = false;
                 _addNewCard($scope.stateName, questionHtml);
-                if (_learnerInputIsInView) {
-                  focusService.setFocus(_labelForNextFocusTarget);
-                }
+                focusService.setFocus(_labelForNextFocusTarget);
                 _answerIsBeingProcessed = false;
               }
             }
@@ -268,6 +269,18 @@ oppia.directive('conversationSkin', [function() {
         $scope.adjustPageHeight(false, null);
       };
     }]
+  };
+}]);
+
+oppia.directive('answerFeedbackPair', [function() {
+  return {
+    restrict: 'E',
+    scope: {
+      answer: '&',
+      feedback: '&',
+      profilePicture: '&'
+    },
+    templateUrl: 'components/answerFeedbackPair'
   };
 }]);
 

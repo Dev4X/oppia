@@ -266,6 +266,10 @@ oppia.factory('focusService', ['$rootScope', '$timeout', function($rootScope, $t
         $rootScope.$broadcast('focusOn', _nextLabelToFocusOn);
         _nextLabelToFocusOn = null;
       });
+    },
+    // Generates a random string (to be used as a focus label).
+    generateFocusLabel: function() {
+      return Math.random().toString(36).slice(2);
     }
   };
 }]);

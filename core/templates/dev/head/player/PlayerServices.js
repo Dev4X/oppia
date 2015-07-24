@@ -135,7 +135,7 @@ oppia.factory('oppiaPlayerService', [
 
   var _explorationId = explorationContextService.getExplorationId();
   var _editorPreviewMode = (explorationContextService.getPageContext() === PAGE_CONTEXT.EDITOR);
-  var _introCardImageUrl = null;
+  var _infoCardImageUrl = null;
 
   var version = GLOBALS.explorationVersion;
   var explorationDataUrl = (
@@ -194,21 +194,21 @@ oppia.factory('oppiaPlayerService', [
       // Record the state hit to the event handler.
       var stateHitEventHandlerUrl = '/explorehandler/state_hit_event/' + _explorationId;
 
-      if (newStateName) {
-        $http.post(stateHitEventHandlerUrl, {
-          new_state_name: newStateName,
-          exploration_version: version,
-          session_id: sessionId,
-          client_time_spent_in_secs: stopwatch.getTimeInSecs(),
-          old_params: learnerParamsService.getAllParams()
-        });
-      }
+      $http.post(stateHitEventHandlerUrl, {
+        new_state_name: newStateName,
+        exploration_version: version,
+        session_id: sessionId,
+        client_time_spent_in_secs: stopwatch.getTimeInSecs(),
+        old_params: learnerParamsService.getAllParams()
+      });
 
       // If the new state contains a terminal interaction, record a completion
-      // event.
-      if (!newStateName ||
-          INTERACTION_SPECS[
+      // event, and inform the parent page that a completion has happened.
+      if (INTERACTION_SPECS[
             _exploration.states[newStateName].interaction.id].is_terminal) {
+        messengerService.sendMessage(
+          messengerService.EXPLORATION_COMPLETED, null);
+
         var completeExplorationUrl = (
           '/explorehandler/exploration_complete_event/' + _explorationId);
         $http.post(completeExplorationUrl, {
@@ -232,13 +232,9 @@ oppia.factory('oppiaPlayerService', [
     stopwatch.resetStopwatch();
 
     var newStateData = _exploration.states[newStateName];
-    var newInteractionId = newStateData.interaction.id;
-
     $rootScope.$broadcast('playerStateChange');
-
     successCallback(
-      newStateName, refreshInteraction, newFeedbackHtml,
-      newQuestionHtml, newInteractionId);
+      newStateName, refreshInteraction, newFeedbackHtml, newQuestionHtml);
   };
 
   var _registerMaybeLeaveEvent = function(stateName) {
@@ -257,7 +253,7 @@ oppia.factory('oppiaPlayerService', [
     stopwatch.resetStopwatch();
     _updateStatus(newParams, initStateName);
     $rootScope.$broadcast('playerStateChange');
-    callback(initStateName, initHtml, _viewerHasEditingRights, _introCardImageUrl);
+    callback(initStateName, initHtml);
   };
 
   // This should only be called when _exploration is non-null.
@@ -311,7 +307,7 @@ oppia.factory('oppiaPlayerService', [
      * Initializes an exploration, passing the data for the first state to
      * successCallback.
      *
-     * In editor preview mode, populateExploration() should be called before
+     * In editor preview mode, populateExploration() must be called before
      * calling init().
      *
      * @param {function} successCallback The function to execute after the initial
@@ -326,7 +322,7 @@ oppia.factory('oppiaPlayerService', [
 
       if (_editorPreviewMode) {
         if (_exploration) {
-          _introCardImageUrl = (
+          _infoCardImageUrl = (
             '/images/gallery/exploration_background_' +
             (GLOBALS.CATEGORIES_TO_COLORS[_exploration.category] || 'teal') +
             '_large.png');
@@ -335,13 +331,15 @@ oppia.factory('oppiaPlayerService', [
       } else {
         $http.get(explorationDataUrl).success(function(data) {
           _exploration = data.exploration;
-          _introCardImageUrl = data.intro_card_image_url;
+          _infoCardImageUrl = data.info_card_image_url;
           version = data.version,
           _isLoggedIn = data.is_logged_in;
           sessionId = data.session_id;
           _viewerHasEditingRights = data.can_edit;
           _loadInitialState(successCallback);
           $rootScope.$broadcast('playerServiceInitialized');
+          messengerService.sendMessage(
+            messengerService.EXPLORATION_LOADED, null);
         }).error(function(data) {
           warningsData.addWarning(
             data.error || 'There was an error loading the exploration.');
@@ -445,9 +443,7 @@ oppia.factory('oppiaPlayerService', [
         // Compute the data for the next state. This may be null if there are
         // malformed expressions.
         var nextStateData = stateTransitionService.getNextStateData(
-          outcome,
-          _exploration.states[newStateName],
-          answer);
+          outcome, _exploration.states[newStateName], answer);
 
         if (nextStateData) {
           nextStateData['state_name'] = newStateName;

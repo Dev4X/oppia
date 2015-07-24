@@ -15,10 +15,8 @@
   <!-- TODO(sll): do we need to preserve the itemprop attr? -->
 
   <div role="main" style="margin: 0 auto; position: relative;">
-    <div style="margin: 12px auto;">
-      <progress-dots num-dots="numProgressDots" current-dot-index="currentProgressDotIndex">
-      </progress-dots>
-    </div>
+    <progress-dots num-dots="numProgressDots" current-dot-index="currentProgressDotIndex">
+    </progress-dots>
 
     <md-card class="conversation-skin-card">
       <div class="conversation-skin-card-feedback-toggle-container" ng-if="activeCard.stateName && !isInPreviewMode">
@@ -31,10 +29,8 @@
       </div>
 
       <div class="conversation-skin-card-top-section">
-        <div>
-          <img class="conversation-skin-initial-oppia-avatar" src="/images/general/oppia_black_48px.png">
-          <div class="protractor-test-conversation-content" angular-html-bind="activeCard.content">
-          </div>
+        <img class="conversation-skin-initial-oppia-avatar" src="/images/general/oppia_black_48px.png">
+        <div class="protractor-test-conversation-content" angular-html-bind="activeCard.content">
         </div>
       </div>
 
@@ -65,10 +61,15 @@
         </answer-feedback-pair>
       </div>
 
-      <div ng-if="stateName && !waitingForNewCard && !waitingForOppiaFeedback && interactionIsInline && currentProgressDotIndex === allResponseStates.length - 1">
+      <div ng-if="!waitingForOppiaFeedback && (interactionIsInline || upcomingContentHtml) && currentProgressDotIndex === transcript.length - 1">
         <div class="conversation-skin-inline-interaction">
           <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
-          <div class="protractor-test-conversation-input" angular-html-bind="inputTemplate">
+          <div ng-if="upcomingContentHtml">
+            <md-button class="md-button-success" ng-click="showPendingCard()">Continue</md-button>
+          </div>
+          <div ng-if="!upcomingContentHtml">
+            <div class="protractor-test-conversation-input" angular-html-bind="interactionHtml">
+            </div>
           </div>
         </div>
       </div>
@@ -76,15 +77,15 @@
   </div>
 
   <div class="conversation-skin-supplemental-interaction">
-    <div ng-if="!waitingForNewCard && !interactionIsInline && inputTemplate && (!finished || !isIframed)">
+    <div ng-if="!interactionIsInline && interactionHtml && (!finished || !isIframed)">
       <md-card class="conversation-skin-supplemental-card">
-        <div class="protractor-test-conversation-input" angular-html-bind="inputTemplate">
+        <div class="protractor-test-conversation-input" angular-html-bind="interactionHtml">
         </div>
       </md-card>
     </div>
   </div>
 
-  <div ng-if="!waitingForNewCard && finished && isLoggedIn && !isInPreviewMode && !isIframed" class="conversation-skin-final-ratings">
+  <div ng-if="finished && isLoggedIn && !isInPreviewMode && !isIframed" class="conversation-skin-final-ratings">
     <oppia-gadget-panel panel-contents="gadgetPanelsContents.main" class="conversation-skin-main-gadget-panel"></oppia-gadget-panel>
 
     <div style="margin-bottom: 20px;">Learned something new? How would you rate this exploration?</div>
@@ -164,17 +165,19 @@
     }
   </style>
 
-  <div style="width: 300px; margin: 10px auto;">
-    <ul class="oppia-progress-dot-list">
-      <li ng-repeat="dot in dots track by $index" class="oppia-animate-progress-dot">
-        <span class="oppia-progress-dot oppia-progress-dot-active"
-              ng-if="$index === currentDotIndex">
-        </span>
-        <span class="oppia-progress-dot oppia-progress-dot-inactive"
-              ng-if="$index !== currentDotIndex"
-              ng-click="changeActiveDot($index)">
-        </span>
-      </li>
-    </ul>
+  <div style="margin: 12px auto;">
+    <div style="width: 300px; margin: 10px auto;">
+      <ul class="oppia-progress-dot-list">
+        <li ng-repeat="dot in dots track by $index" class="oppia-animate-progress-dot">
+          <span class="oppia-progress-dot oppia-progress-dot-active"
+                ng-if="$index === currentDotIndex" ng-show="dots.length > 1">
+          </span>
+          <span class="oppia-progress-dot oppia-progress-dot-inactive"
+                ng-if="$index !== currentDotIndex"
+                ng-click="changeActiveDot($index)">
+          </span>
+        </li>
+      </ul>
+    </div>
   </div>
 </script>

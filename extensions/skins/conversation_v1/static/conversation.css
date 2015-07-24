@@ -111,6 +111,7 @@ body {
    Material Design stylesheet. */
 md-card.conversation-skin-card {
   background: rgb(255,255,255);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
   margin: 0 auto;
   max-width: 472px;
   padding: 0;

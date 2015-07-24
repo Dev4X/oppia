@@ -167,6 +167,7 @@ oppia.directive('conversationSkin', [function() {
             pairs[pairs.length - 1].oppiaFeedback = feedbackHtml;
 
             if (_oldStateName === newStateName) {
+              oppiaPlayerService.applyCachedParamUpdates();
               if (refreshInteraction) {
                 // Replace the previous interaction (even though it might be of
                 // the same type).
@@ -205,10 +206,11 @@ oppia.directive('conversationSkin', [function() {
 
           $scope.finished = oppiaPlayerService.isStateTerminal(newStateName);
           _answerIsBeingProcessed = false;
-        });
+        }, true);
       };
 
       $scope.showPendingCard = function() {
+        oppiaPlayerService.applyCachedParamUpdates();
         _addNewCard($scope.upcomingStateName, $scope.upcomingContentHtml);
         $scope.interactionHtml = $scope.upcomingInteractionHtml;
         focusService.setFocus(_nextFocusLabel);

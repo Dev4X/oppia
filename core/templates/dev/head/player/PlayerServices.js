@@ -179,9 +179,16 @@ oppia.factory('oppiaPlayerService', [
 
   var stopwatch = stopwatchProviderService.getInstance();
 
+  var cachedParamUpdates = {
+    newParams: null,
+    newStateName: null
+  };
+
+  // If delayParamUpdates is true, the parameters will need to be updated
+  // manually by calling applyCachedParamUpdates().
   var _onStateTransitionProcessed = function(
       newStateName, newParams, newQuestionHtml, newFeedbackHtml, answer,
-      successCallback) {
+      successCallback, delayParamUpdates) {
     var oldStateName = _currentStateName;
     var oldStateInteractionId = _exploration.states[oldStateName].interaction.id;
 
@@ -228,7 +235,13 @@ oppia.factory('oppiaPlayerService', [
       });
     }
 
-    _updateStatus(newParams, newStateName);
+    if (!delayParamUpdates) {
+      _updateStatus(newParams, newStateName);
+    } else {
+      cachedParamUpdates.newParams = angular.copy(newParams);
+      cachedParamUpdates.newStateName = angular.copy(newStateName);
+    }
+
     stopwatch.resetStopwatch();
 
     var newStateData = _exploration.states[newStateName];
@@ -346,6 +359,11 @@ oppia.factory('oppiaPlayerService', [
         });
       }
     },
+    applyCachedParamUpdates: function() {
+      _updateStatus(cachedParamUpdates.newParams, cachedParamUpdates.newStateName);
+      cachedParamUpdates.newParams = null;
+      cachedParamUpdates.newStateName = null;
+    },
     getExplorationId: function() {
       return _explorationId;
     },
@@ -413,7 +431,7 @@ oppia.factory('oppiaPlayerService', [
       }
       return ($('<div>').append(el)).html();
     },
-    submitAnswer: function(answer, successCallback) {
+    submitAnswer: function(answer, successCallback, delayParamUpdates) {
       if (answerIsBeingProcessed) {
         return;
       }
@@ -451,7 +469,7 @@ oppia.factory('oppiaPlayerService', [
           _onStateTransitionProcessed(
             nextStateData.state_name, nextStateData.params,
             nextStateData.question_html, nextStateData.feedback_html,
-            answer, successCallback);
+            answer, successCallback, delayParamUpdates);
         } else {
           answerIsBeingProcessed = false;
           warningsData.addWarning('Expression parsing error.');

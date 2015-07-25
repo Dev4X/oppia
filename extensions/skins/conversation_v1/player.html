@@ -2,8 +2,70 @@
   <link rel="stylesheet" type="text/css"
         href="/extensions/skins/conversation_v1/static/conversation.css">
 
-  <!-- TODO(sll): do we need to preserve the itemprop attr? -->
+  <style>
+    @keyframes conversation-skin-animate-card {
+      0% {
+        margin-left: -10px;
+      }
 
+      100% {
+        margin-left: 0;
+      }
+    }
+
+    .conversation-skin-animate-card.ng-enter,
+    .conversation-skin-animate-card.ng-leave,
+    .conversation-skin-animate-card.ng-move {
+      -webkit-transition: 0.5s linear all;
+      -moz-transition: 0.5s linear all;
+      -o-transition: 0.5s linear all;
+      transition: 0.5s linear all;
+    }
+
+    .conversation-skin-animate-card.ng-enter,
+    .conversation-skin-animate-card.ng-move {
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .conversation-skin-animate-card.ng-move.ng-move-active,
+    .conversation-skin-animate-card.ng-enter.ng-enter-active {
+      opacity: 1;
+      height: 120px;
+    }
+
+    .conversation-skin-animate-card.ng-leave {
+      opacity: 1;
+      overflow: hidden;
+    }
+
+    .conversation-skin-animate-card.ng-leave.ng-leave-active {
+      height: 0;
+      opacity: 0;
+    }
+  </style>
+
+  <!-- Off-screen preview of future card in order to pre-determine the target height for the animation. -->
+  <md-card class="conversation-skin-card" style="position: absolute; left: -30000px; top: -30000px;">
+    <div id="futurePreview">
+      <div class="conversation-skin-card-top-section">
+        <img class="conversation-skin-initial-oppia-avatar" src="/images/general/o_black_72px.png">
+        <div class="protractor-test-conversation-content" angular-html-bind="upcomingContentHtml">
+        </div>
+      </div>
+
+      <div ng-if="interactionIsInline">
+        <div class="conversation-skin-inline-interaction">
+          <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
+          <div class="protractor-test-conversation-input" angular-html-bind="upcomingInteractionHtml">
+          </div>
+        </div>
+      </div>
+    </div>
+  </md-card>
+
+  <!-- TODO(sll): do we need to preserve the itemprop attr? -->
   <div role="main" style="margin: 0 auto; position: relative;">
     <progress-dots num-dots="numProgressDots" current-dot-index="currentProgressDotIndex">
     </progress-dots>
@@ -18,47 +80,49 @@
         </span>
       </div>
 
-      <div class="conversation-skin-card-top-section">
-        <img class="conversation-skin-initial-oppia-avatar" src="/images/general/oppia_black_48px.png">
-        <div class="protractor-test-conversation-content" angular-html-bind="activeCard.content">
-        </div>
-      </div>
-
-      <div ng-if="arePreviousResponsesShown">
-        <div ng-repeat="responsePair in activeCard.answerFeedbackPairs track by $index">
-          <div ng-if="!$last">
-            <answer-feedback-pair profile-picture="profilePicture"
-                                  answer="responsePair.learnerAnswer"
-                                  feedback="responsePair.oppiaFeedback">
-            </answer-feedback-pair>
+      <div class="conversation-skin-animate-card" ng-class="{'animate-card-change': startCardChangeAnimation}">
+        <div class="conversation-skin-card-top-section">
+          <img class="conversation-skin-initial-oppia-avatar" src="/images/general/o_black_72px.png">
+          <div class="protractor-test-conversation-content" angular-html-bind="activeCard.content">
           </div>
         </div>
-      </div>
-      <div ng-if="!arePreviousResponsesShown && activeCard.answerFeedbackPairs.length > 1">
-        <h4 class="conversation-skin-responses-dropdown-container" ng-click="showPreviousResponses()">
-          <span class="conversation-skin-responses-dropdown-text">
-            <[activeCard.answerFeedbackPairs.length - 1]> prior response<span ng-if="activeCard.answerFeedbackPairs.length > 2">s</span>
-            <span class="glyphicon glyphicon-play"></span>
-          </span>
-        </h4>
-      </div>
 
-      <!-- Always show the most recent response pair, if there is one. -->
-      <div ng-if="activeCard.answerFeedbackPairs.length > 0">
-        <answer-feedback-pair profile-picture="profilePicture"
-                              answer="activeCard.answerFeedbackPairs[activeCard.answerFeedbackPairs.length - 1].learnerAnswer"
-                              feedback="activeCard.answerFeedbackPairs[activeCard.answerFeedbackPairs.length - 1].oppiaFeedback">
-        </answer-feedback-pair>
-      </div>
-
-      <div ng-if="!waitingForOppiaFeedback && (interactionIsInline || upcomingContentHtml) && currentProgressDotIndex === transcript.length - 1">
-        <div class="conversation-skin-inline-interaction">
-          <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
-          <div ng-if="upcomingContentHtml">
-            <md-button class="md-button-success" ng-click="showPendingCard()">Continue</md-button>
+        <div class="conversation-skin-card-middle-section" ng-if="arePreviousResponsesShown">
+          <div ng-repeat="responsePair in activeCard.answerFeedbackPairs track by $index">
+            <div ng-if="!$last">
+              <answer-feedback-pair profile-picture="profilePicture"
+                                    answer="responsePair.learnerAnswer"
+                                    feedback="responsePair.oppiaFeedback">
+              </answer-feedback-pair>
+            </div>
           </div>
-          <div ng-if="!upcomingContentHtml">
-            <div class="protractor-test-conversation-input" angular-html-bind="interactionHtml">
+        </div>
+        <div ng-if="!arePreviousResponsesShown && activeCard.answerFeedbackPairs.length > 1">
+          <h4 class="conversation-skin-responses-dropdown-container" ng-click="showPreviousResponses()">
+            <span class="conversation-skin-responses-dropdown-text">
+              <[activeCard.answerFeedbackPairs.length - 1]> prior response<span ng-if="activeCard.answerFeedbackPairs.length > 2">s</span>
+              <span class="glyphicon glyphicon-play" style="font-size:10px; margin-bottom: -4px;"></span>
+            </span>
+          </h4>
+        </div>
+
+        <!-- Always show the most recent response pair, if there is one. -->
+        <div class="conversation-skin-card-bottom-section" ng-if="activeCard.answerFeedbackPairs.length > 0">
+          <answer-feedback-pair profile-picture="profilePicture"
+                                answer="activeCard.answerFeedbackPairs[activeCard.answerFeedbackPairs.length - 1].learnerAnswer"
+                                feedback="activeCard.answerFeedbackPairs[activeCard.answerFeedbackPairs.length - 1].oppiaFeedback">
+          </answer-feedback-pair>
+        </div>
+
+        <div ng-if="!waitingForOppiaFeedback && (interactionIsInline || upcomingContentHtml) && currentProgressDotIndex === transcript.length - 1">
+          <div class="conversation-skin-inline-interaction">
+            <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
+            <div ng-if="upcomingContentHtml">
+              <md-button class="md-button-success" ng-click="showPendingCard()">Continue</md-button>
+            </div>
+            <div ng-if="!upcomingContentHtml">
+              <div class="protractor-test-conversation-input" angular-html-bind="interactionHtml">
+              </div>
             </div>
           </div>
         </div>
@@ -88,13 +152,13 @@
 
 <script type="text/ng-template" id="components/answerFeedbackPair">
   <div class="conversation-skin-learner-answer-container">
-    <img class="conversation-skin-user-avatar" ng-src="<[profilePicture()]>" style="top: -5px;">
+    <img class="conversation-skin-user-avatar" ng-src="<[profilePicture()]>">
     <div class="conversation-skin-learner-answer" angular-html-bind="answer()">
     </div>
   </div>
 
   <div class="conversation-skin-oppia-feedback-container">
-    <img class="conversation-skin-oppia-avatar img-circle" ng-src="/images/general/oppia_black_48px.png">
+    <img class="conversation-skin-oppia-avatar img-circle" ng-src="/images/general/o_black_72px.png">
 
     <div class="conversation-skin-oppia-feedback protractor-test-conversation-feedback">
       <div ng-if="feedback() === null">
@@ -121,16 +185,17 @@
 
     .oppia-progress-dot {
       border-radius: 50%;
+      box-shadow: 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
       float: left;
       margin-left: 10px;
     }
     .oppia-progress-dot-active {
-      background-color: blue;
-      height: 12px;
-      width: 12px;
+      background-color: #fff;
+      height: 10px;
+      width: 10px;
     }
     .oppia-progress-dot-inactive {
-      background-color: #fff;
+      background-color: #ccc;
       cursor: pointer;
       height: 10px;
       width: 10px;

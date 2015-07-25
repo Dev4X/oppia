@@ -20,6 +20,7 @@
 */
 html, body {
   background-color: #eee;
+  color: rgba(0,0,0,0.87);
   font-family: 'Open Sans', Arial, sans-serif;
   font-size: 1.0em;
 }
@@ -40,26 +41,21 @@ body {
 .conversation-skin-initial-oppia-avatar,
 .conversation-skin-oppia-avatar,
 .conversation-skin-user-avatar {
-  background: white;
-  border-radius: 50%;
   position: absolute;
 }
 .conversation-skin-initial-oppia-avatar {
-  border: 1px solid #05a69a;
-  height: 48px;
-  left: -24px;
-  top: 24px;
-  width: 48px;
+  height: 36px;
+  left: -18px;
+  top: 30px;
+  width: 36px;
 }
 .conversation-skin-oppia-avatar {
-  border: 2px solid #05a69a;
   height: 36px;
   left: -18px;
   top: -9px;
   width: 36px;
 }
 .conversation-skin-user-avatar {
-  border: 1px solid blue;
   height: 36px;
   left: -18px;
   top: 12px;
@@ -67,10 +63,10 @@ body {
 }
 
 .conversation-skin-responses-dropdown-container {
-  border-bottom: 1px solid #888;
+  border-bottom: 1px solid #ccc;
   cursor: pointer;
   line-height: 0.1em;
-  margin: 0 auto 20px auto;
+  margin: 0 auto 30px auto;
   text-align: center;
   width: 90%;
 }
@@ -111,7 +107,6 @@ body {
    Material Design stylesheet. */
 md-card.conversation-skin-card {
   background: rgb(255,255,255);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
   margin: 0 auto;
   max-width: 472px;
   padding: 0;
@@ -120,13 +115,24 @@ md-card.conversation-skin-card {
 }
 
 .conversation-skin-card-top-section {
-  padding: 40px 36px 10px 36px
+  padding: 36px 36px 24px 36px;
 }
+.conversation-skin-card-bottom-section,
+.conversation-skin-card-middle-section {
+  padding: 0px 36px 2px 36px
+}
+
+.conversation-skin-card-bottom-section .conversation-skin-user-avatar,
+.conversation-skin-card-bottom-section .conversation-skin-oppia-avatar,
+.conversation-skin-card-middle-section .conversation-skin-user-avatar,
+.conversation-skin-card-middle-section .conversation-skin-oppia-avatar {
+  left: -56px;
+  top: -7px;
+}
+
 .conversation-skin-learner-answer-container,
 .conversation-skin-oppia-feedback-container {
-  margin-bottom: 20px;
-  min-height: 42px;
-  padding: 0 36px 20px 36px;
+  margin-bottom: 30px;
   position: relative;
 }
 
@@ -146,13 +152,13 @@ md-card.conversation-skin-card {
 }
 
 .conversation-skin-inline-interaction {
-  background: #eee;
+  background: rgba(0,0,0,0.06);
   padding: 16px 36px 24px 36px;
   position: relative;
 }
 
 .conversation-skin-learner-answer {
-  color: blue;
+  color: #0D4781;
 }
 .conversation-skin-learner-answer,
 .conversation-skin-oppia-feedback {

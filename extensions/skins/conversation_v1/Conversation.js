@@ -18,6 +18,43 @@
  * @author sll@google.com (Sean Lip)
  */
 
+var TIME_FADEOUT_MSEC = 100;
+var TIME_HEIGHT_CHANGE_MSEC = 400;
+var TIME_FADEIN_MSEC = 100;
+
+oppia.animation('.conversation-skin-animate-card', function() {
+  var animateCardChange = function(element, className, done) {
+    if (className !== 'animate-card-change') {
+      return;
+    }
+
+    var expectedNextHeight = $('#futurePreview').height();
+
+    jQuery(element).animate({
+      opacity: 0
+    }, TIME_FADEOUT_MSEC).animate({
+      height: expectedNextHeight
+    }, TIME_HEIGHT_CHANGE_MSEC).animate({
+      opacity: 1
+    }, TIME_FADEIN_MSEC, function() {
+      element.css('height', '');
+      done();
+    });
+
+    return function(cancel) {
+      if (cancel) {
+        element.css('opacity', '1.0');
+        element.css('height', '');
+        element.stop();
+      }
+    };
+  };
+
+  return {
+    addClass: animateCardChange
+  };
+});
+
 // TODO(sll): delete/deprecate 'reset exploration' from the list of
 // events sent to a container page.
 
@@ -47,7 +84,7 @@ oppia.directive('conversationSkin', [function() {
       $rootScope.loadingMessage = 'Loading';
       // This will be replaced with the dataURI representation of the
       // user-uploaded profile image, if it exists.
-      $scope.profilePicture = '/images/general/user_mint_48px.png';
+      $scope.profilePicture = '/images/general/user_blue_72px.png';
       $scope.finished = false;
 
       $scope.activeCard = null;
@@ -209,15 +246,27 @@ oppia.directive('conversationSkin', [function() {
         }, true);
       };
 
+      $scope.startCardChangeAnimation = false;
       $scope.showPendingCard = function() {
+        $scope.startCardChangeAnimation = true;
         oppiaPlayerService.applyCachedParamUpdates();
-        _addNewCard($scope.upcomingStateName, $scope.upcomingContentHtml);
-        $scope.interactionHtml = $scope.upcomingInteractionHtml;
-        focusService.setFocus(_nextFocusLabel);
 
-        $scope.upcomingStateName = null;
-        $scope.upcomingContentHtml = null;
-        $scope.upcomingInteractionHtml = null;
+        $timeout(function() {
+          _addNewCard($scope.upcomingStateName, $scope.upcomingContentHtml);
+          $scope.interactionHtml = $scope.upcomingInteractionHtml;
+
+          $scope.upcomingStateName = null;
+          $scope.upcomingContentHtml = null;
+          $scope.upcomingInteractionHtml = null;
+        }, TIME_FADEOUT_MSEC + 0.1 * TIME_HEIGHT_CHANGE_MSEC);
+
+        $timeout(function() {
+          focusService.setFocus(_nextFocusLabel);
+        }, TIME_FADEOUT_MSEC + TIME_HEIGHT_CHANGE_MSEC + 0.5 * TIME_FADEIN_MSEC);
+
+        $timeout(function() {
+          $scope.startCardChangeAnimation = false;
+        }, TIME_FADEOUT_MSEC + TIME_HEIGHT_CHANGE_MSEC + TIME_FADEIN_MSEC + 10);
       };
 
       $scope.submitUserRating = function(ratingValue) {

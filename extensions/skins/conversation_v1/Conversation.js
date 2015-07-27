@@ -22,7 +22,7 @@ var TIME_FADEOUT_MSEC = 100;
 var TIME_HEIGHT_CHANGE_MSEC = 400;
 var TIME_FADEIN_MSEC = 100;
 
-oppia.animation('.conversation-skin-animate-card', function() {
+oppia.animation('.conversation-skin-animate-card-contents', function() {
   var animateCardChange = function(element, className, done) {
     if (className !== 'animate-card-change') {
       return;
@@ -54,6 +54,64 @@ oppia.animation('.conversation-skin-animate-card', function() {
     addClass: animateCardChange
   };
 });
+
+oppia.animation('.conversation-skin-animate-card', function() {
+  var animateMoveTutorCardLeft = function(element, className, done) {
+    if (className !== 'animate-move-tutor-card-left') {
+      return;
+    }
+
+    jQuery(element).animate({
+      'margin-left': '20px',
+      'margin-right': ''
+    }, 500, function() {
+      element.css('margin-left', '20px');
+      element.css('margin-right', '');
+      element.css('float', 'left');
+      done();
+    });
+
+    return function(cancel) {
+      if (cancel) {
+        element.css('margin-left', '20px');
+        element.css('margin-right', '');
+        element.css('float', 'left');
+        element.stop();
+      }
+    };
+  };
+
+  var animateMoveTutorCardCenter = function(element, className, done) {
+    if (className !== 'animate-move-tutor-card-left') {
+      return;
+    }
+
+    jQuery(element).animate({
+      'margin-left': 'auto',
+      'margin-right': 'auto'
+    }, 500, function() {
+      element.css('margin-left', 'auto');
+      element.css('margin-right', 'auto');
+      element.css('float', '');
+      done();
+    });
+
+    return function(cancel) {
+      if (cancel) {
+        element.css('margin-left', 'auto');
+        element.css('margin-right', 'auto');
+        element.css('float', '');
+        element.stop();
+      }
+    };
+  };
+
+  return {
+    addClass: animateMoveTutorCardLeft,
+    removeClass: animateMoveTutorCardCenter
+  };
+});
+
 
 // TODO(sll): delete/deprecate 'reset exploration' from the list of
 // events sent to a container page.
@@ -125,6 +183,8 @@ oppia.directive('conversationSkin', [function() {
       var _navigateToCard = function(index) {
         $scope.activeCard = $scope.transcript[index];
         $scope.arePreviousResponsesShown = false;
+        $scope.interactionIsInline = oppiaPlayerService.isInteractionInline(
+          $scope.activeCard.stateName);
       };
 
       var _addNewCard = function(stateName, contentHtml) {
@@ -211,8 +271,6 @@ oppia.directive('conversationSkin', [function() {
                 _nextFocusLabel = focusService.generateFocusLabel();
                 $scope.interactionHtml = oppiaPlayerService.getInteractionHtml(
                   newStateName, _nextFocusLabel) + oppiaPlayerService.getRandomSuffix();
-                $scope.interactionIsInline = oppiaPlayerService.isInteractionInline(
-                  newStateName);
               }
 
               focusService.setFocus(_nextFocusLabel);
@@ -277,7 +335,9 @@ oppia.directive('conversationSkin', [function() {
       });
 
       $scope.$watch('currentProgressDotIndex', function(newValue) {
-        _navigateToCard(newValue);
+        if (newValue !== null) {
+          _navigateToCard(newValue);
+        }
       });
 
       $scope.isWindowNarrow = function() {

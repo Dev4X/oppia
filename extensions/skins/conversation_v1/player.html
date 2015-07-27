@@ -2,50 +2,6 @@
   <link rel="stylesheet" type="text/css"
         href="/extensions/skins/conversation_v1/static/conversation.css">
 
-  <style>
-    @keyframes conversation-skin-animate-card {
-      0% {
-        margin-left: -10px;
-      }
-
-      100% {
-        margin-left: 0;
-      }
-    }
-
-    .conversation-skin-animate-card.ng-enter,
-    .conversation-skin-animate-card.ng-leave,
-    .conversation-skin-animate-card.ng-move {
-      -webkit-transition: 0.5s linear all;
-      -moz-transition: 0.5s linear all;
-      -o-transition: 0.5s linear all;
-      transition: 0.5s linear all;
-    }
-
-    .conversation-skin-animate-card.ng-enter,
-    .conversation-skin-animate-card.ng-move {
-      opacity: 0;
-      height: 0;
-      overflow: hidden;
-    }
-
-    .conversation-skin-animate-card.ng-move.ng-move-active,
-    .conversation-skin-animate-card.ng-enter.ng-enter-active {
-      opacity: 1;
-      height: 120px;
-    }
-
-    .conversation-skin-animate-card.ng-leave {
-      opacity: 1;
-      overflow: hidden;
-    }
-
-    .conversation-skin-animate-card.ng-leave.ng-leave-active {
-      height: 0;
-      opacity: 0;
-    }
-  </style>
-
   <!-- Off-screen preview of future card in order to pre-determine the target height for the animation. -->
   <md-card class="conversation-skin-card" style="position: absolute; left: -30000px; top: -30000px;">
     <div id="futurePreview">
@@ -70,7 +26,7 @@
     <progress-dots num-dots="numProgressDots" current-dot-index="currentProgressDotIndex">
     </progress-dots>
 
-    <md-card class="conversation-skin-card">
+    <md-card class="conversation-skin-card conversation-skin-animate-card" ng-class="{'animate-move-tutor-card-left': !interactionIsInline}">
       <div class="conversation-skin-card-feedback-toggle-container" ng-if="activeCard.stateName && !isInPreviewMode">
         <span class="glyphicon glyphicon-comment conversation-skin-card-feedback-toggle"
               popover-placement="<[isWindowNarrow() ? 'left' : 'bottom']>"
@@ -80,7 +36,7 @@
         </span>
       </div>
 
-      <div class="conversation-skin-animate-card" ng-class="{'animate-card-change': startCardChangeAnimation}">
+      <div class="conversation-skin-animate-card-contents" ng-class="{'animate-card-change': startCardChangeAnimation}">
         <div class="conversation-skin-card-top-section">
           <img class="conversation-skin-initial-oppia-avatar" src="/images/general/o_black_72px.png">
           <div class="protractor-test-conversation-content" angular-html-bind="activeCard.content">
@@ -128,10 +84,8 @@
         </div>
       </div>
     </md-card>
-  </div>
 
-  <div class="conversation-skin-supplemental-interaction">
-    <div ng-if="!interactionIsInline && interactionHtml && (!finished || !isIframed)">
+    <div ng-if="!interactionIsInline && interactionHtml && (!finished || !isIframed)" class="conversation-skin-supplemental-interaction">
       <md-card class="conversation-skin-supplemental-card">
         <div class="protractor-test-conversation-input" angular-html-bind="interactionHtml">
         </div>

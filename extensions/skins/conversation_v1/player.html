@@ -44,6 +44,21 @@
             </div>
           </div>
 
+          <div ng-if="activeCard.answerFeedbackPairs.length > 1">
+            <h4 class="conversation-skin-responses-dropdown-container" ng-click="toggleShowPreviousResponses()">
+              <span class="conversation-skin-responses-dropdown-text">
+                <span ng-if="!arePreviousResponsesShown">
+                  <[activeCard.answerFeedbackPairs.length - 1]> prior response<span ng-if="activeCard.answerFeedbackPairs.length > 2">s</span>
+                  <span class="glyphicon glyphicon-play" style="font-size:10px; margin-bottom: -4px;"></span>
+                </span>
+                <span ng-if="arePreviousResponsesShown">
+                  <[activeCard.answerFeedbackPairs.length]> response<span ng-if="activeCard.answerFeedbackPairs.length > 1">s</span>
+                  <span class="glyphicon glyphicon-triangle-bottom" style="font-size:10px; margin-bottom: -4px;"></span>
+                </span>
+              </span>
+            </h4>
+          </div>
+
           <div class="conversation-skin-tutor-card-middle-section" ng-if="arePreviousResponsesShown">
             <div ng-repeat="responsePair in activeCard.answerFeedbackPairs track by $index">
               <div ng-if="!$last">
@@ -53,14 +68,6 @@
                 </answer-feedback-pair>
               </div>
             </div>
-          </div>
-          <div ng-if="!arePreviousResponsesShown && activeCard.answerFeedbackPairs.length > 1">
-            <h4 class="conversation-skin-responses-dropdown-container" ng-click="showPreviousResponses()">
-              <span class="conversation-skin-responses-dropdown-text">
-                <[activeCard.answerFeedbackPairs.length - 1]> prior response<span ng-if="activeCard.answerFeedbackPairs.length > 2">s</span>
-                <span class="glyphicon glyphicon-play" style="font-size:10px; margin-bottom: -4px;"></span>
-              </span>
-            </h4>
           </div>
 
           <!-- Always show the most recent response pair, if there is one. -->

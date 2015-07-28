@@ -230,8 +230,8 @@ oppia.directive('conversationSkin', [function() {
         _navigateToCard($scope.transcript.length - 1);
       };
 
-      $scope.showPreviousResponses = function() {
-        $scope.arePreviousResponsesShown = true;
+      $scope.toggleShowPreviousResponses = function() {
+        $scope.arePreviousResponsesShown = !$scope.arePreviousResponsesShown;
       };
 
       $scope.initializePage = function() {

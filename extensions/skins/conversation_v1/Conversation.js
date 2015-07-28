@@ -19,8 +19,9 @@
  */
 
 var TIME_FADEOUT_MSEC = 100;
-var TIME_HEIGHT_CHANGE_MSEC = 400;
+var TIME_HEIGHT_CHANGE_MSEC = 500;
 var TIME_FADEIN_MSEC = 100;
+var TIME_NUM_CARDS_CHANGE_MSEC = 500;
 
 oppia.animation('.conversation-skin-animate-card-contents', function() {
   var animateCardChange = function(element, className, done) {
@@ -28,7 +29,12 @@ oppia.animation('.conversation-skin-animate-card-contents', function() {
       return;
     }
 
+    var currentHeight = element.height();
     var expectedNextHeight = $('#futurePreview').height();
+
+    // Fix the current card height, so that it does not change during the
+    // animation, even though its contents might.
+    element.css('height', currentHeight);
 
     jQuery(element).animate({
       opacity: 0
@@ -55,28 +61,42 @@ oppia.animation('.conversation-skin-animate-card-contents', function() {
   };
 });
 
-oppia.animation('.conversation-skin-animate-card', function() {
+oppia.animation('.conversation-skin-animate-cards', function() {
   var animateMoveTutorCardLeft = function(element, className, done) {
     if (className !== 'animate-move-tutor-card-left') {
       return;
     }
 
-    jQuery(element).animate({
-      'margin-left': '20px',
-      'margin-right': ''
-    }, 500, function() {
-      element.css('margin-left', '20px');
-      element.css('margin-right', '');
-      element.css('float', 'left');
-      done();
+    var cardElt = jQuery(element).find('.conversation-skin-tutor-card');
+    var supplementalInteractionElt = jQuery(element).find(
+      '.conversation-skin-supplemental-interaction');
+
+    supplementalInteractionElt.css('opacity', '0');
+
+    cardElt.animate({
+      'margin-left': '0'
+    }, TIME_NUM_CARDS_CHANGE_MSEC, function() {
+      cardElt.css('margin-left', '0');
+      cardElt.css('margin-right', '');
+      cardElt.css('float', 'left');
+
+      supplementalInteractionElt.animate({
+        'opacity': '1'
+      }, 50, function() {
+        supplementalInteractionElt.css('opacity', '1');
+        done();
+      });
     });
 
     return function(cancel) {
       if (cancel) {
-        element.css('margin-left', '20px');
-        element.css('margin-right', '');
-        element.css('float', 'left');
-        element.stop();
+        cardElt.css('margin-left', '0');
+        cardElt.css('margin-right', '');
+        cardElt.css('float', 'left');
+        cardElt.stop();
+
+        supplementalInteractionElt.css('opacity', '1');
+        supplementalInteractionElt.stop();
       }
     };
   };
@@ -86,22 +106,29 @@ oppia.animation('.conversation-skin-animate-card', function() {
       return;
     }
 
-    jQuery(element).animate({
-      'margin-left': 'auto',
-      'margin-right': 'auto'
-    }, 500, function() {
-      element.css('margin-left', 'auto');
-      element.css('margin-right', 'auto');
-      element.css('float', '');
+    var cardElt = jQuery(element).find('.conversation-skin-tutor-card');
+    var supplementalInteractionElt = jQuery(element).find(
+      '.conversation-skin-supplemental-interaction');
+
+    supplementalInteractionElt.css('opacity', '0');
+    cardElt.animate({
+      'margin-left': '306px'
+    }, TIME_NUM_CARDS_CHANGE_MSEC, function() {
+      cardElt.css('margin-left', 'auto');
+      cardElt.css('margin-right', 'auto');
+      cardElt.css('float', '');
       done();
     });
 
     return function(cancel) {
       if (cancel) {
-        element.css('margin-left', 'auto');
-        element.css('margin-right', 'auto');
-        element.css('float', '');
-        element.stop();
+        cardElt.css('margin-left', 'auto');
+        cardElt.css('margin-right', 'auto');
+        cardElt.css('float', '');
+        cardElt.stop();
+
+        supplementalInteractionElt.css('opacity', '0');
+        supplementalInteractionElt.stop();
       }
     };
   };
@@ -150,9 +177,11 @@ oppia.directive('conversationSkin', [function() {
       $scope.currentProgressDotIndex = null;
       $scope.arePreviousResponsesShown = false;
 
+      $scope.waitingForContinueButtonClick = false;
+
       $scope.upcomingStateName = null;
       $scope.upcomingContentHtml = null;
-      $scope.upcomingInteractionHtml = null;
+      $scope.upcomingInlineInteractionHtml = null;
 
       // If the exploration is iframed, send data to its parent about its
       // height so that the parent can be resized as necessary.
@@ -188,6 +217,7 @@ oppia.directive('conversationSkin', [function() {
       };
 
       var _addNewCard = function(stateName, contentHtml) {
+        oppiaPlayerService.applyCachedParamUpdates();
         $scope.transcript.push({
           stateName: stateName,
           content: contentHtml,
@@ -257,46 +287,56 @@ oppia.directive('conversationSkin', [function() {
             1.0);
 
           $scope.waitingForOppiaFeedback = false;
+          var pairs = (
+            $scope.transcript[$scope.transcript.length - 1].answerFeedbackPairs);
+          var lastAnswerFeedbackPair = pairs[pairs.length - 1];
 
-          if (feedbackHtml) {
-            var pairs = (
-              $scope.transcript[$scope.transcript.length - 1].answerFeedbackPairs);
-            pairs[pairs.length - 1].oppiaFeedback = feedbackHtml;
-
-            if (_oldStateName === newStateName) {
-              oppiaPlayerService.applyCachedParamUpdates();
-              if (refreshInteraction) {
-                // Replace the previous interaction (even though it might be of
-                // the same type).
-                _nextFocusLabel = focusService.generateFocusLabel();
-                $scope.interactionHtml = oppiaPlayerService.getInteractionHtml(
-                  newStateName, _nextFocusLabel) + oppiaPlayerService.getRandomSuffix();
-              }
-
-              focusService.setFocus(_nextFocusLabel);
-            } else {
-              // There is feedback, and a new card after that. Move on to the
-              // new card after giving the learner a chance to read the
-              // feedback.
-              $scope.interactionHtml = '';
-
-              $scope.upcomingStateName = newStateName;
-              $scope.upcomingContentHtml = (
-                contentHtml + oppiaPlayerService.getRandomSuffix());
+          if (_oldStateName === newStateName) {
+            // Stay on the same card.
+            lastAnswerFeedbackPair.oppiaFeedback = feedbackHtml;
+            if (refreshInteraction) {
+              // Replace the previous interaction (even though it might be of
+              // the same type).
               _nextFocusLabel = focusService.generateFocusLabel();
-              $scope.upcomingInteractionHtml = oppiaPlayerService.getInteractionHtml(
+              $scope.interactionHtml = oppiaPlayerService.getInteractionHtml(
                 newStateName, _nextFocusLabel) + oppiaPlayerService.getRandomSuffix();
             }
-          } else {
-            // There is no feedback. Move to the new card.
-            oppiaPlayerService.applyCachedParamUpdates();
-            _addNewCard(
-              newStateName,
-              contentHtml + oppiaPlayerService.getRandomSuffix());
-            _nextFocusLabel = focusService.generateFocusLabel();
-            $scope.interactionHtml = oppiaPlayerService.getInteractionHtml(
-              newStateName, _nextFocusLabel) + oppiaPlayerService.getRandomSuffix();
+
             focusService.setFocus(_nextFocusLabel);
+          } else {
+            // There is a new card. Move on immediately if there is no feedback.
+            // Otherwise, give the learner a chance to read the feedback, and
+            // display a 'Continue' button.
+            $scope.interactionHtml = '';
+            _nextFocusLabel = focusService.generateFocusLabel();
+
+            // These are used to compute the dimensions for the next card.
+            $scope.upcomingStateName = newStateName;
+            $scope.upcomingContentHtml = (
+              contentHtml + oppiaPlayerService.getRandomSuffix());
+            var _isNextInteractionInline = oppiaPlayerService.isInteractionInline(
+              newStateName);
+            $scope.upcomingInlineInteractionHtml = (
+              _isNextInteractionInline ?
+              oppiaPlayerService.getInteractionHtml(
+                newStateName, _nextFocusLabel
+              ) + oppiaPlayerService.getRandomSuffix() : '');
+
+            if (feedbackHtml) {
+              lastAnswerFeedbackPair.oppiaFeedback = feedbackHtml;
+              $scope.waitingForContinueButtonClick = true;
+            } else {
+              // Note that feedbackHtml is an empty string if no feedback has
+              // been specified. This causes the answer-feedback pair to change
+              // abruptly, so we make the change only after the animation has
+              // completed.
+              $scope.showPendingCard(
+                newStateName,
+                contentHtml + oppiaPlayerService.getRandomSuffix(),
+                function() {
+                  lastAnswerFeedbackPair.oppiaFeedback = feedbackHtml;
+                });
+            }
           }
 
           $scope.finished = oppiaPlayerService.isStateTerminal(newStateName);
@@ -305,17 +345,18 @@ oppia.directive('conversationSkin', [function() {
       };
 
       $scope.startCardChangeAnimation = false;
-      $scope.showPendingCard = function() {
+      $scope.showPendingCard = function(newStateName, newContentHtml, successCallback) {
+        $scope.waitingForContinueButtonClick = false;
         $scope.startCardChangeAnimation = true;
-        oppiaPlayerService.applyCachedParamUpdates();
 
         $timeout(function() {
-          _addNewCard($scope.upcomingStateName, $scope.upcomingContentHtml);
-          $scope.interactionHtml = $scope.upcomingInteractionHtml;
+          _addNewCard(newStateName, newContentHtml);
+          $scope.interactionHtml = oppiaPlayerService.getInteractionHtml(
+            newStateName, _nextFocusLabel) + oppiaPlayerService.getRandomSuffix();
 
           $scope.upcomingStateName = null;
           $scope.upcomingContentHtml = null;
-          $scope.upcomingInteractionHtml = null;
+          $scope.upcomingInlineInteractionHtml = null;
         }, TIME_FADEOUT_MSEC + 0.1 * TIME_HEIGHT_CHANGE_MSEC);
 
         $timeout(function() {
@@ -324,6 +365,9 @@ oppia.directive('conversationSkin', [function() {
 
         $timeout(function() {
           $scope.startCardChangeAnimation = false;
+          if (successCallback) {
+            successCallback();
+          }
         }, TIME_FADEOUT_MSEC + TIME_HEIGHT_CHANGE_MSEC + TIME_FADEIN_MSEC + 10);
       };
 

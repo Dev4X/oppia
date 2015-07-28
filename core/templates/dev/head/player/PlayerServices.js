@@ -152,9 +152,14 @@ oppia.factory('oppiaPlayerService', [
 
   var _updateStatus = function(newParams, newStateName) {
     // TODO(sll): Do this more incrementally.
-    learnerParamsService.init(newParams);
-    _currentStateName = newStateName;
-    stateHistory.push(_currentStateName);
+    if (newParams !== null) {
+      learnerParamsService.init(newParams);
+    }
+
+    if (newStateName !== null) {
+      _currentStateName = newStateName;
+      stateHistory.push(_currentStateName);
+    }
   };
 
   // TODO(sll): Move this (and the corresponding code in the exploration editor) to

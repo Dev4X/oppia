@@ -19,10 +19,15 @@
   mode.
 */
 html, body {
+  background: url('/images/general/background.png') no-repeat center center fixed;
   background-color: #eee;
   color: rgba(0,0,0,0.87);
   font-family: 'Open Sans', Arial, sans-serif;
   font-size: 1.0em;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  -background-size: cover;
 }
 
 body {

@@ -21,7 +21,6 @@
 var TIME_FADEOUT_MSEC = 100;
 var TIME_HEIGHT_CHANGE_MSEC = 500;
 var TIME_FADEIN_MSEC = 100;
-var TIME_NUM_CARDS_CHANGE_MSEC = 500;
 
 oppia.animation('.conversation-skin-animate-card-contents', function() {
   var animateCardChange = function(element, className, done) {
@@ -61,88 +60,8 @@ oppia.animation('.conversation-skin-animate-card-contents', function() {
   };
 });
 
-oppia.animation('.conversation-skin-animate-cards', function() {
-  var animateMoveTutorCardLeft = function(element, className, done) {
-    if (className !== 'animate-move-tutor-card-left') {
-      return;
-    }
-
-    var cardElt = jQuery(element).find('.conversation-skin-tutor-card');
-    var supplementalInteractionElt = jQuery(element).find(
-      '.conversation-skin-supplemental-interaction');
-
-    supplementalInteractionElt.css('opacity', '0');
-
-    cardElt.animate({
-      'margin-left': '0'
-    }, TIME_NUM_CARDS_CHANGE_MSEC, function() {
-      cardElt.css('margin-left', '0');
-      cardElt.css('margin-right', '');
-      cardElt.css('float', 'left');
-
-      supplementalInteractionElt.animate({
-        'opacity': '1'
-      }, 50, function() {
-        supplementalInteractionElt.css('opacity', '1');
-        done();
-      });
-    });
-
-    return function(cancel) {
-      if (cancel) {
-        cardElt.css('margin-left', '0');
-        cardElt.css('margin-right', '');
-        cardElt.css('float', 'left');
-        cardElt.stop();
-
-        supplementalInteractionElt.css('opacity', '1');
-        supplementalInteractionElt.stop();
-      }
-    };
-  };
-
-  var animateMoveTutorCardCenter = function(element, className, done) {
-    if (className !== 'animate-move-tutor-card-left') {
-      return;
-    }
-
-    var cardElt = jQuery(element).find('.conversation-skin-tutor-card');
-    var supplementalInteractionElt = jQuery(element).find(
-      '.conversation-skin-supplemental-interaction');
-
-    supplementalInteractionElt.css('opacity', '0');
-    cardElt.animate({
-      'margin-left': '306px'
-    }, TIME_NUM_CARDS_CHANGE_MSEC, function() {
-      cardElt.css('margin-left', 'auto');
-      cardElt.css('margin-right', 'auto');
-      cardElt.css('float', '');
-      done();
-    });
-
-    return function(cancel) {
-      if (cancel) {
-        cardElt.css('margin-left', 'auto');
-        cardElt.css('margin-right', 'auto');
-        cardElt.css('float', '');
-        cardElt.stop();
-
-        supplementalInteractionElt.css('opacity', '0');
-        supplementalInteractionElt.stop();
-      }
-    };
-  };
-
-  return {
-    addClass: animateMoveTutorCardLeft,
-    removeClass: animateMoveTutorCardCenter
-  };
-});
-
-
 // TODO(sll): delete/deprecate 'reset exploration' from the list of
 // events sent to a container page.
-
 oppia.directive('conversationSkin', [function() {
   return {
     restrict: 'E',

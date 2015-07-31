@@ -155,6 +155,8 @@ oppia.directive('conversationSkin', [function() {
           $scope, $timeout, $rootScope, $window, messengerService,
           oppiaPlayerService, urlService, focusService, ratingService) {
 
+      $scope.CONTINUE_BUTTON_FOCUS_LABEL = 'continueButton';
+
       // The minimum number of milliseconds that should elapse before Oppia
       // responds, so that the transition isn't too sudden.
       var MIN_WAIT_TIME_MILLISECS = 1000;
@@ -325,6 +327,7 @@ oppia.directive('conversationSkin', [function() {
             if (feedbackHtml) {
               lastAnswerFeedbackPair.oppiaFeedback = feedbackHtml;
               $scope.waitingForContinueButtonClick = true;
+              focusService.setFocus($scope.CONTINUE_BUTTON_FOCUS_LABEL);
             } else {
               // Note that feedbackHtml is an empty string if no feedback has
               // been specified. This causes the answer-feedback pair to change

@@ -82,7 +82,10 @@
             <div class="conversation-skin-inline-interaction">
               <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
               <div ng-if="waitingForContinueButtonClick">
-                <md-button class="md-button-success" ng-click="showPendingCard(upcomingStateName, upcomingContentHtml)">Continue</md-button>
+                <md-button class="md-button-success" focus-on="<[CONTINUE_BUTTON_FOCUS_LABEL]>"
+                           ng-click="showPendingCard(upcomingStateName, upcomingContentHtml)">
+                  Continue
+                </md-button>
               </div>
               <div ng-if="interactionIsInline && interactionHtml">
                 <div class="protractor-test-conversation-input" angular-html-bind="interactionHtml">

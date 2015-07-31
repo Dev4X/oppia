@@ -218,11 +218,15 @@ oppia.directive('conversationSkin', [function() {
           $scope.activeCard.stateName);
       };
 
-      var _addNewCard = function(stateName, contentHtml) {
+      var _addNewCard = function(
+          stateName, contentHtml, interactionHtml, interactionIsInline) {
         oppiaPlayerService.applyCachedParamUpdates();
         $scope.transcript.push({
           stateName: stateName,
           content: contentHtml,
+          interaction: interactionHtml,
+          interactionIsInline: interactionIsInline,
+          interactionIsDisabled: false,
           answerFeedbackPairs: []
         });
 
@@ -238,21 +242,20 @@ oppia.directive('conversationSkin', [function() {
 
       $scope.initializePage = function() {
         $scope.transcript = [];
-        $scope.interactionHtml = '';
         $scope.interactionIsInline = false;
         $scope.waitingForOppiaFeedback = false;
         hasInteractedAtLeastOnce = false;
 
         oppiaPlayerService.init(function(stateName, initHtml) {
           _nextFocusLabel = focusService.generateFocusLabel();
-          $scope.interactionHtml = oppiaPlayerService.getInteractionHtml(
-            stateName, _nextFocusLabel);
-          $scope.interactionIsInline = oppiaPlayerService.isInteractionInline(
-            stateName);
           $scope.gadgetPanelsContents = (
             oppiaPlayerService.getGadgetPanelsContents());
 
-          _addNewCard(stateName, initHtml);
+          _addNewCard(
+            stateName,
+            initHtml,
+            oppiaPlayerService.getInteractionHtml(stateName, _nextFocusLabel),
+            oppiaPlayerService.isInteractionInline(stateName));
           $rootScope.loadingMessage = '';
 
           $scope.adjustPageHeight(false, null);
@@ -300,16 +303,19 @@ oppia.directive('conversationSkin', [function() {
               // Replace the previous interaction (even though it might be of
               // the same type).
               _nextFocusLabel = focusService.generateFocusLabel();
-              $scope.interactionHtml = oppiaPlayerService.getInteractionHtml(
-                newStateName, _nextFocusLabel) + oppiaPlayerService.getRandomSuffix();
+              $scope.transcript[$scope.transcript.length - 1].interaction = (
+                oppiaPlayerService.getInteractionHtml(newStateName, _nextFocusLabel) +
+                oppiaPlayerService.getRandomSuffix());
             }
 
             focusService.setFocus(_nextFocusLabel);
           } else {
-            // There is a new card. Move on immediately if there is no feedback.
-            // Otherwise, give the learner a chance to read the feedback, and
-            // display a 'Continue' button.
-            $scope.interactionHtml = '';
+            // There is a new card. Disable the current interaction -- then, if
+            // there is no feedback, move on immediately. Otherwise, give the
+            // learner a chance to read the feedback, and display a 'Continue'
+            // button.
+            $scope.transcript[$scope.transcript.length - 1].interactionIsDisabled = true;
+
             _nextFocusLabel = focusService.generateFocusLabel();
 
             // These are used to compute the dimensions for the next card.
@@ -353,9 +359,12 @@ oppia.directive('conversationSkin', [function() {
         $scope.startCardChangeAnimation = true;
 
         $timeout(function() {
-          _addNewCard(newStateName, newContentHtml);
-          $scope.interactionHtml = oppiaPlayerService.getInteractionHtml(
-            newStateName, _nextFocusLabel) + oppiaPlayerService.getRandomSuffix();
+          _addNewCard(
+            newStateName,
+            newContentHtml,
+            oppiaPlayerService.getInteractionHtml(
+              newStateName, _nextFocusLabel) + oppiaPlayerService.getRandomSuffix(),
+            oppiaPlayerService.isInteractionInline(newStateName));
 
           $scope.upcomingStateName = null;
           $scope.upcomingContentHtml = null;

@@ -192,18 +192,33 @@ md-card.conversation-skin-tutor-card {
   -webkit-animation-delay: 0.6s;
 }
 
-.conversation-skin-supplemental-interaction {
+.conversation-skin-supplemental-card-container {
   display: inline-block;
-  width: 600px;
+  margin: 0 0 0 12px;
+  position: relative;
 }
 
 md-card.conversation-skin-supplemental-card {
   background-color: #f6f6f6;
-  margin: 0 0 0 12px;
+  margin: 0;
   width: 600px;
+}
+
+.conversation-skin-supplemental-card-overlay {
+  background: #eee;
+  height: 100%;
+  opacity: 0.5;
+  position: absolute;
+  width: 100%;
+  z-index: 3;
 }
 
 .conversation-skin-final-ratings {
   padding-top: 20px;
   text-align: center;
+}
+
+.conversation-skin-left-card {
+  margin-left: 0;
+  float: left;
 }

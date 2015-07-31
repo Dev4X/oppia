@@ -11,7 +11,7 @@
         </div>
       </div>
 
-      <div ng-if="interactionIsInline && upcomingInlineInteractionHtml">
+      <div ng-if="activeCard.interactionIsInline && upcomingInlineInteractionHtml">
         <div class="conversation-skin-inline-interaction">
           <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
           <div class="protractor-test-conversation-input" angular-html-bind="upcomingInlineInteractionHtml">
@@ -26,8 +26,9 @@
     <progress-dots num-dots="numProgressDots" current-dot-index="currentProgressDotIndex">
     </progress-dots>
 
-    <div class="conversation-skin-cards-container conversation-skin-animate-cards" ng-class="{'animate-move-tutor-card-left': !interactionIsInline}">
-      <md-card class="conversation-skin-tutor-card">
+    <div class="conversation-skin-cards-container conversation-skin-animate-cards"
+         ng-class="{'animate-move-tutor-card-left': !interactionIsInline}">
+      <md-card class="conversation-skin-tutor-card" ng-class="{'conversation-skin-left-card': !activeCard.interactionIsInline}">
         <div class="conversation-skin-tutor-card-feedback-toggle-container" ng-if="activeCard.stateName && !isInPreviewMode">
           <span class="glyphicon glyphicon-comment conversation-skin-tutor-card-feedback-toggle"
                 popover-placement="<[isWindowNarrow() ? 'left' : 'bottom']>"
@@ -78,7 +79,7 @@
             </answer-feedback-pair>
           </div>
 
-          <div ng-if="!waitingForOppiaFeedback && ((interactionIsInline && interactionHtml) || waitingForContinueButtonClick) && currentProgressDotIndex === transcript.length - 1">
+          <div ng-if="!waitingForOppiaFeedback && ((activeCard.interactionIsInline && activeCard.interaction) || waitingForContinueButtonClick) && currentProgressDotIndex === transcript.length - 1">
             <div class="conversation-skin-inline-interaction">
               <img class="conversation-skin-user-avatar img-circle" ng-src="<[profilePicture]>">
               <div ng-if="waitingForContinueButtonClick">
@@ -87,8 +88,9 @@
                   Continue
                 </md-button>
               </div>
-              <div ng-if="interactionIsInline && interactionHtml">
-                <div class="protractor-test-conversation-input" angular-html-bind="interactionHtml">
+              <div ng-if="activeCard.interactionIsInline && activeCard.interaction && !activeCard.interactionIsDisabled">
+                <div class="protractor-test-conversation-input"
+                     angular-html-bind="activeCard.interaction">
                 </div>
               </div>
             </div>
@@ -96,9 +98,18 @@
         </div>
       </md-card>
 
-      <div ng-if="!interactionIsInline && interactionHtml && (!finished || !isIframed)" class="conversation-skin-supplemental-interaction">
-        <md-card class="conversation-skin-supplemental-card">
-          <div class="protractor-test-conversation-input" angular-html-bind="interactionHtml">
+      <div class="conversation-skin-supplemental-card-container">
+        <div ng-if="activeCard.interactionIsDisabled" class="conversation-skin-supplemental-card-overlay">
+        </div>
+        <!--
+          This needs to use ng-show and a loop over the transcript, so that the
+          state of previous supplemental interactions is preserved.
+        -->
+        <md-card ng-show="!activeCard.interactionIsInline && activeCard.interaction && (!finished || !isIframed)"
+                 class="conversation-skin-supplemental-card">
+          <div ng-repeat="transcriptCard in transcript">
+            <div class="protractor-test-conversation-input" angular-html-bind="transcriptCard.interaction" ng-show="$index === currentProgressDotIndex">
+            </div>
           </div>
         </md-card>
       </div>
